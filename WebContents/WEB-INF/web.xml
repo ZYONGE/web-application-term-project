@@ -1,9 +1,73 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://xmlns.jcp.org/xml/ns/javaee" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd" id="WebApp_ID" version="4.0">
   <display-name>WebApplication_TermProject</display-name>
-  <welcome-file-list>
-    <welcome-file>index.html</welcome-file>
-    <welcome-file>index.jsp</welcome-file>
-    <welcome-file>index.htm</welcome-file>
-  </welcome-file-list>
+
+  <!--
+    서블릿 주소는 각 서블릿의 @WebServlet 에 있다 (shop.service).
+    로그인 · 권한 · 점검 모드 검사는 BaseServlet 이 한다.
+    화면(JSP)은 WebContents 아래 기능별 폴더에 있고, 서블릿이 값을 담아 forward 한다.
+  -->
+
+  <!-- 요청 · 응답 글자 인코딩 (한글) -->
+  <request-character-encoding>UTF-8</request-character-encoding>
+  <response-character-encoding>UTF-8</response-character-encoding>
+
+  <!-- 금액 · 날짜 표기를 한국어 형식으로 고정 -->
+  <context-param>
+    <param-name>javax.servlet.jsp.jstl.fmt.locale</param-name>
+    <param-value>ko_KR</param-value>
+  </context-param>
+
+  <!-- 모든 JSP 를 UTF-8 로 읽고 쓴다 -->
+  <jsp-config>
+    <jsp-property-group>
+      <url-pattern>*.jsp</url-pattern>
+      <page-encoding>UTF-8</page-encoding>
+      <default-content-type>text/html; charset=UTF-8</default-content-type>
+    </jsp-property-group>
+  </jsp-config>
+
+  <!--
+    CSS · JS 는 매번 서버에 바뀌었는지 물어본다 (Tomcat 기본 ExpiresFilter).
+    안 바뀌었으면 304 로 캐시를 쓰고, 바뀌었으면 새 파일을 받는다 —
+    CSS 를 고쳤는데 브라우저가 옛 파일을 계속 쓰는 문제를 막는다.
+  -->
+  <filter>
+    <filter-name>StaticRevalidate</filter-name>
+    <filter-class>org.apache.catalina.filters.ExpiresFilter</filter-class>
+    <init-param>
+      <param-name>ExpiresByType text/css</param-name>
+      <param-value>access plus 0 seconds</param-value>
+    </init-param>
+    <init-param>
+      <param-name>ExpiresByType text/javascript</param-name>
+      <param-value>access plus 0 seconds</param-value>
+    </init-param>
+    <init-param>
+      <param-name>ExpiresByType application/javascript</param-name>
+      <param-value>access plus 0 seconds</param-value>
+    </init-param>
+  </filter>
+  <filter-mapping>
+    <filter-name>StaticRevalidate</filter-name>
+    <url-pattern>/css/*</url-pattern>
+    <url-pattern>/js/*</url-pattern>
+  </filter-mapping>
+
+  <session-config>
+    <session-timeout>30</session-timeout>
+  </session-config>
+
+  <error-page>
+    <error-code>404</error-code>
+    <location>/common/error404.jsp</location>
+  </error-page>
+  <error-page>
+    <error-code>500</error-code>
+    <location>/common/error500.jsp</location>
+  </error-page>
+  <error-page>
+    <exception-type>java.lang.Throwable</exception-type>
+    <location>/common/error500.jsp</location>
+  </error-page>
 </web-app>

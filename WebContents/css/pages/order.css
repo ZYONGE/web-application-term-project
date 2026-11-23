@@ -1,1 +1,186 @@
-/* 주문 — 주문서, 주문완료, 주문내역 */
+@charset "utf-8";
+
+/*
+  주문 — 주문서, 주문완료, 주문내역, 주문상세
+  소유 접두어: order_* (DECISIONS.md D-09)
+  사용 중: order_form · order_method (form.jsp) / order_timeline (view.jsp)
+*/
+
+/*주문서 — 위의 상품표와 같은 폭으로 이어진다. 소제목마다 구분선*/
+.order_form {
+	margin-top: var(--space-lg);
+}
+
+.order_form h3 {
+	margin-top: var(--space-xl);
+	margin-bottom: var(--space-sm);
+}
+
+.order_form h3:first-child {
+	margin-top: 0px;
+}
+
+/*저장된 배송지 고르기 줄*/
+.order_form > p {
+	display: flex;
+	align-items: center;
+	gap: var(--space-sm);
+	margin-bottom: var(--space-sm);
+	font-size: var(--font-size-small);
+}
+
+.order_form > p select {
+	min-width: 280px;
+}
+
+.order_form .formtable .field {
+	max-width: 480px;
+}
+
+/*결제수단 — 라디오를 버튼처럼 나란히*/
+.order_method {
+	display: flex;
+	gap: var(--space-sm);
+}
+
+.order_method label {
+	display: inline-flex;
+	align-items: center;
+	padding-top: var(--space-sm);
+	padding-right: var(--space-lg);
+	padding-bottom: var(--space-sm);
+	padding-left: var(--space-md);
+	border: 1px solid var(--color-border-strong);
+	border-radius: var(--radius-sm);
+	cursor: pointer;
+}
+
+.order_method label:has(input:checked) {
+	font-weight: bold;
+	border-color: var(--color-primary);
+	box-shadow: inset 0px 0px 0px 1px var(--color-primary);
+}
+
+/*배송 상태 이력 — 세로 시간선*/
+.order_timeline {
+	margin-top: var(--space-sm);
+	margin-bottom: var(--space-lg);
+	padding-left: var(--space-lg);
+	border-left: 2px solid var(--color-border-strong);
+}
+
+.order_timeline li {
+	position: relative;
+	padding-top: var(--space-xs);
+	padding-bottom: var(--space-sm);
+	font-size: var(--font-size-small);
+}
+
+.order_timeline li::before {
+	content: "";
+	position: absolute;
+	top: 10px;
+	left: calc(var(--space-lg) * -1 - 6px);
+	width: 10px;
+	height: 10px;
+	background-color: var(--color-primary);
+	border-radius: 50%;
+}
+
+/*===== 필살기 브랜드 적용 (2026-11-22) =====*/
+
+/*주문 플로우 단계 표시 — 장바구니 → 주문서 → 주문완료*/
+.order_steps {
+	display: flex;
+	justify-content: center;
+	gap: var(--space-sm);
+	margin-bottom: var(--space-xl);
+	padding-left: 0px;
+	list-style: none;
+}
+
+.order_steps li {
+	padding: var(--space-sm) var(--space-lg);
+	font-size: var(--font-size-small);
+	color: var(--color-text-weak);
+	background-color: var(--color-surface);
+	border: 1px solid var(--color-border);
+	border-radius: 999px;
+}
+
+/*현재 단계 — 다크틸 채움 + 흰 글자 (inverse 토큰 사용)*/
+.order_steps li.on {
+	color: var(--color-text-inverse);
+	background-color: var(--color-primary);
+	border-color: var(--color-primary);
+	font-weight: bold;
+}
+
+/*주문완료 헤드라인*/
+.order_done {
+	padding: var(--space-xl) var(--space-md);
+	margin-bottom: var(--space-xl);
+	text-align: center;
+	background-color: var(--color-primary-light);
+	border: 1px solid var(--color-border-strong);
+	border-radius: var(--radius-md);
+}
+
+.order_done h2 {
+	margin-bottom: var(--space-sm);
+	font-size: var(--font-size-title);
+}
+
+.order_done_msg {
+	color: var(--color-text-weak);
+}
+
+/*주문서 · 주문완료 섹션 제목 — 틸 밑줄
+  모든 페이지 CSS 를 한꺼번에 거는 구조라 주문완료(.order_done 뒤 h3)로 범위를 좁힌다*/
+.order_form h3,
+.order_done ~ h3 {
+	margin-bottom: var(--space-md);
+	font-size: var(--font-size-base);
+	border-bottom: 2px solid var(--color-primary);
+	padding-bottom: var(--space-sm);
+}
+
+/*결제수단 라디오 — 한 줄 나열*/
+.order_method {
+	display: flex;
+	gap: var(--space-lg);
+	padding: var(--space-sm) 0px;
+}
+
+/*배송 상태 이력 — 세로 타임라인, 현재(마지막) 단계 볼트옐로우 점*/
+.order_timeline {
+	padding-left: 0px;
+	list-style: none;
+}
+
+.order_timeline li {
+	position: relative;
+	padding-left: 20px;
+	padding-bottom: var(--space-sm);
+	color: var(--color-text-weak);
+}
+
+.order_timeline li::before {
+	content: "";
+	position: absolute;
+	left: 0px;
+	top: 0.45em;
+	width: 8px;
+	height: 8px;
+	background-color: var(--color-border-strong);
+	border-radius: 50%;
+}
+
+.order_timeline li:last-child {
+	color: var(--color-text);
+	font-weight: bold;
+}
+
+.order_timeline li:last-child::before {
+	background-color: var(--color-accent);
+}

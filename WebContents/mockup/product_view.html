@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>상품 상세 — 청사진</title>
+<!--
+  product/view.jsp 대응. pages/product.css + popup.css + table.css 확인용.
+  팝업은 실제로는 <dialog> + showModal() 로 열린다 (js/ui.js).
+  청사진에서 모양을 보려고 open 속성을 붙여 둔 것이다.
+-->
+<link rel="stylesheet" href="../css/base/reset.css">
+<link rel="stylesheet" href="../css/base/variables.css">
+<link rel="stylesheet" href="../css/base/layout.css">
+<link rel="stylesheet" href="../css/components/button.css">
+<link rel="stylesheet" href="../css/components/form.css">
+<link rel="stylesheet" href="../css/components/card.css">
+<link rel="stylesheet" href="../css/components/table.css">
+<link rel="stylesheet" href="../css/components/pagination.css">
+<link rel="stylesheet" href="../css/components/popup.css">
+<link rel="stylesheet" href="../css/components/tab.css">
+<link rel="stylesheet" href="../css/components/warnbox.css">
+<link rel="stylesheet" href="../css/pages/product.css">
+</head>
+<body>
+<div class="wrap">
+<header class="page_header">
+	<h1><a href="#"><img src="../images/logo_pillsalgi.png" alt="필살기"></a></h1>
+	<ul class="page_header_util"><li>홍길동님</li><li><a href="#">마이페이지</a></li><li><a href="#">장바구니 (3)</a></li></ul>
+	<nav class="page_nav"><ul><li><a href="#">전체 영양제</a></li><li><a href="#">낱개 영양제</a></li><li><a href="#">트랙 패키지</a></li><li><a href="#">공지사항</a></li><li class="page_nav_custom"><a href="#">조합 맞추기</a></li></ul></nav>
+</header>
+<main class="page_content">
+
+<article class="prod_detail">
+	<h2><span class="prodcard_badge">트랙</span> 데일리 기본 트랙</h2>
+
+	<div class="prod_gallery">
+		<p>[대표 이미지 없음]</p>
+	</div>
+
+	<table class="formtable">
+		<tr><th>구분</th><td>트랙 패키지 — 여러 영양제를 1포에 묶은 상품</td></tr>
+		<tr><th>카테고리</th><td>데일리 케어</td></tr>
+		<tr><th>판매가</th><td>1포 1,200원 <span class="field_help">1포 = 하루 섭취분</span></td></tr>
+		<tr><th>재고</th><td>300포 (300일분)</td></tr>
+		<tr><th>별점</th><td>4.5 / 5 (리뷰 12건)</td></tr>
+	</table>
+
+	<div class="prod_desc">하루 기본 4종을 1포에. 설명 본문이 이 영역에 들어옵니다.</div>
+
+	<!-- AI 영양 코치 — LLM API 1회 호출 자리 (상품 정보+설문 결과 → 추천 문구) -->
+	<section class="prod_ai">
+		<h3 class="prod_ai_head">AI 영양 코치 분석</h3>
+		<p class="prod_ai_text">데일리 기본 트랙은 비타민C·D·오메가3·마그네슘의 기본 4종을 1포에 담았습니다. 실내에서 오래 지내고 채소 섭취가 적은 분, 환절기 컨디션 관리가 필요한 분께 추천합니다.</p>
+		<ul class="prod_ai_points">
+			<li class="prod_ai_point">비타민D — 실내 활동이 많은 분께 부족하기 쉬운 성분</li>
+			<li class="prod_ai_point">오메가3 — 눈·혈관 관리가 필요한 성인에게 권장</li>
+			<li class="prod_ai_point">마그네슘 — 피로와 근육 뭉침 완화에 도움</li>
+		</ul>
+		<p class="field_help">AI 생성 답변은 참고용이며 의학적 조언이 아닙니다.</p>
+	</section>
+
+	<!-- 성분 정보 -->
+	<section class="prod_ingre">
+		<h3>성분 정보 (1포 기준)</h3>
+		<table class="listtable">
+			<thead class="listtable_head">
+				<tr><th class="col_ingre">성분</th><th class="col_amt">함량</th><th class="col_dv">일일 권장량 대비</th></tr>
+			</thead>
+			<tbody>
+				<tr><td class="col_ingre">비타민C</td><td class="col_amt">1,000mg</td><td class="col_dv">1,000%</td></tr>
+				<tr><td class="col_ingre">비타민D</td><td class="col_amt">2,000IU</td><td class="col_dv">400%</td></tr>
+				<tr><td class="col_ingre">오메가3</td><td class="col_amt">1,000mg</td><td class="col_dv">—</td></tr>
+				<tr><td class="col_ingre">마그네슘</td><td class="col_amt">300mg</td><td class="col_dv">80%</td></tr>
+			</tbody>
+		</table>
+	</section>
+
+	<!-- 트랙 구성표 — 트랙일 때만 -->
+	<section class="prod_track">
+		<h3>트랙 구성 (1포 기준)</h3>
+		<table class="listtable">
+			<thead class="listtable_head">
+				<tr><th class="col_no">순서</th><th class="col_name">구성 영양제</th><th class="col_price">낱개 1포 가격</th></tr>
+			</thead>
+			<tbody>
+				<tr><td class="col_no">1</td><td class="col_name">비타민C 1000mg</td><td class="col_price">300원</td></tr>
+				<tr><td class="col_no">2</td><td class="col_name">비타민D 2000IU</td><td class="col_price">250원</td></tr>
+				<tr><td class="col_no">3</td><td class="col_name">오메가3 1000mg</td><td class="col_price">450원</td></tr>
+				<tr><td class="col_no">4</td><td class="col_name">마그네슘 300mg</td><td class="col_price">320원</td></tr>
+			</tbody>
+		</table>
+		<p class="field_help">낱개로 따로 담으면 1포 1,320원, 트랙은 1포 1,200원입니다. <a href="custom.html">조합 맞추기에서 불러와 고치기</a></p>
+	</section>
+
+	<!-- 함께 드시지 말 것 — 금지 조합이 있을 때만. 구매를 막지 않는다 -->
+	<section class="warnbox">
+		<h3 class="warnbox_title">이 영양제와 함께 드시지 마세요</h3>
+		<ul class="warnbox_list">
+			<li class="warnbox_conflict">
+				<strong class="warnbox_label">동시 섭취 주의</strong>
+				칼슘 500mg × 철분 18mg
+				<span class="warnbox_msg">칼슘은 철분 흡수를 방해할 수 있습니다. 2시간 이상 간격을 두고 드세요.</span>
+			</li>
+		</ul>
+		<p class="warnbox_note">일반 정보이며 의학적 조언이 아닙니다. 복용 중인 약이 있다면 전문가와 상담하세요.</p>
+	</section>
+
+	<!--
+	  구매 영역 — 역할별 3종 (ERD § 5.2 · USER · ADMIN · DEV 완전 격리).
+	  실제 화면에서는 로그인 역할에 따라 이 중 하나만 렌더된다.
+	  분기는 JSP 트랙이 넣는다 — 여기서는 세 모양을 나란히 제시한다.
+	-->
+
+	<p class="field_help">[구매영역 1 / 3] USER — 섭취 일수 · 담기 · 찜 활성</p>
+
+	<form class="prod_buy" action="#" method="post">
+		<div class="prod_days">
+			<span class="prod_days_label">섭취 일수</span>
+			<button type="button" class="btn btn_small">7일</button>
+			<button type="button" class="btn btn_small">14일</button>
+			<button type="button" class="btn btn_small on">30일</button>
+			<button type="button" class="btn btn_small">60일</button>
+			<button type="button" class="btn btn_small">90일</button>
+			<label for="quantity">직접 입력</label>
+			<input type="number" id="quantity" name="quantity" value="30" min="1" max="90">일
+		</div>
+		<p class="prod_days_total">1포 1,200원 × 30일 = <strong>36,000</strong>원</p>
+		<button type="submit" class="btn btn_primary">장바구니 담기</button>
+	</form>
+
+	<form class="prod_wish" action="#" method="post">
+		<button type="submit" class="btn btn_sub">찜하기</button>
+	</form>
+
+	<p class="field_help">[구매영역 2 / 3] 비로그인 — 컨트롤 없이 로그인으로 보낸다</p>
+
+	<p class="prod_buy">
+		<a class="btn btn_primary" href="#">로그인 후 구매</a>
+	</p>
+
+	<p class="field_help">[구매영역 3 / 3] ADMIN · DEV — 컨트롤 없이 안내 문구만</p>
+
+	<p class="empty">구매는 일반 회원 계정으로만 가능합니다.</p>
+</article>
+
+<section class="prod_review">
+	<h3>리뷰 (12건)</h3>
+	<!-- AI 리뷰 요약 — LLM API 1회 호출 자리 -->
+	<div class="prod_ai_summary">
+		<h4>리뷰 요약 <span class="prodcard_badge">AI</span></h4>
+		<p>최근 리뷰 12건 중 "배송이 빠르다"가 5건, "복용하기 편하다"가 4건으로 가장 많았습니다. 칭천 재구매 의사 언급은 2건입니다. 불만 언급은 없습니다.</p>
+	</div>
+	<table class="listtable">
+		<thead class="listtable_head">
+			<tr><th class="col_rating">별점</th><th class="col_content">내용</th>
+			    <th class="col_writer">작성자</th><th class="col_date">작성일</th></tr>
+		</thead>
+		<tbody>
+			<tr>
+				<td class="col_rating">5 / 5</td>
+				<td class="col_content">배송이 빨랐습니다. <span class="prodcard_badge">구매자 작성</span></td>
+				<td class="col_writer">홍*동</td>
+				<td class="col_date">2026-10-25</td>
+			</tr>
+			<tr><td colspan="4" class="empty">등록된 리뷰가 없습니다.</td></tr>
+		</tbody>
+	</table>
+</section>
+
+<section class="prod_qna">
+	<h3>상품 문의</h3>
+	<table class="listtable">
+		<thead class="listtable_head">
+			<tr><th class="col_no">번호</th><th class="col_content">문의</th><th class="col_date">작성일</th></tr>
+		</thead>
+		<tbody>
+			<tr>
+				<td class="col_no">12</td>
+				<td class="col_content">
+					사이즈 문의입니다.
+					<div class="qna_answer">답변: 정사이즈로 나왔습니다.</div>
+				</td>
+				<td class="col_date">2026-10-24</td>
+			</tr>
+		</tbody>
+	</table>
+	<div class="btnstyle">
+		<button type="button" class="btn btn_primary">문의 작성</button>
+	</div>
+</section>
+
+<dialog id="qnaPopup" class="popup" open>
+	<form class="popup_form" action="#" method="post">
+		<h3 class="popup_head" id="qnaPopupTitle">상품 문의 작성</h3>
+		<div class="popup_body">
+			<label for="question">문의 내용</label>
+			<textarea id="question" name="question" rows="5" class="field"></textarea>
+			<span class="field_help">비밀글로 설정하면 작성자와 관리자만 볼 수 있습니다.</span>
+		</div>
+		<div class="popup_foot">
+			<button type="submit" class="btn btn_primary">등록</button>
+			<button type="button" class="btn btn_sub popup_close">닫기</button>
+		</div>
+	</form>
+</dialog>
+
+</main>
+<footer class="page_footer"><p>배선 동작 확인용 골격입니다.</p></footer>
+</div>
+</body>
+</html>

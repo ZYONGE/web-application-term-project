@@ -1,1 +1,220 @@
-/* 상품 카드 */
+@charset "utf-8";
+
+/*
+  상품 카드 — 소유 접두어: prodcard*, prodlist (DECISIONS.md D-09)
+  사용 중: prodlist / prodcard / prodcard_thumb / prodcard_name / prodcard_price / prodcard_badge
+
+  1200px 폭에 4열 격자. 썸네일은 정사각형 자리를 먼저 잡아 두므로
+  이미지가 없을 때("[이미지 없음]")도 카드 높이가 같다.
+*/
+
+.prodlist {
+	display: grid;
+	grid-template-columns: repeat(4, 1fr);
+	gap: var(--space-lg);
+	align-items: stretch;   /*행의 모든 카드 높이를 같게*/
+	margin-top: 0px;
+	margin-bottom: var(--space-lg);
+	padding-left: 0px;
+}
+
+/*빈 목록 안내는 격자 한 줄 전체를 쓴다*/
+.prodlist > .empty {
+	grid-column: 1 / -1;
+}
+
+.prodcard {
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;   /*버튼이 카드 폭 전체를 쓰고 하단 정렬 기반 확보*/
+}
+
+/*링크영역이 남은 세로를 채워 버튼 라인이 맞도록*/
+.prodcard > a {
+	flex-grow: 1;
+}
+
+.prodcard > a {
+	display: block;
+	width: 100%;
+	color: var(--color-text);
+	text-decoration: none;
+}
+
+/*이미지 자리 — 정사각형*/
+.prodcard_thumb {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+	aspect-ratio: 1 / 1;
+	margin-bottom: var(--space-sm);
+	overflow: hidden;
+	font-size: var(--font-size-small);
+	color: var(--color-text-weak);
+	background-color: var(--color-primary-light);
+	border-radius: var(--radius-md);
+}
+
+.prodcard_thumb img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+/*호버 — 카드가 살짝 뜨는 효과만 (사용자 선택 유지분)*/
+.prodcard > a {
+	display: block;
+	transition: transform 0.15s ease;
+}
+
+.prodcard > a:hover {
+	transform: translateY(-4px);
+}
+
+.prodcard_name {
+	display: block;
+	margin-bottom: var(--space-xs);
+}
+
+.prodcard_price {
+	display: block;
+	font-size: 17px;
+	font-weight: bold;
+}
+
+/*구분 · 별점 · 구성 같은 부가 정보 — 작은 꼬리표*/
+.prodcard_badge {
+	display: inline-block;
+	margin-top: var(--space-xs);
+	margin-right: var(--space-xs);
+	padding-top: 0px;
+	padding-right: var(--space-xs);
+	padding-bottom: 0px;
+	padding-left: var(--space-xs);
+	font-size: var(--font-size-small);
+	font-weight: normal;
+	line-height: var(--line-height-base);
+	color: var(--color-text-weak);
+	vertical-align: middle;
+	background-color: var(--color-primary-light);
+	border-radius: var(--radius-sm);
+}
+
+
+.prodcard > .btn {
+	margin-top: auto;   /*버튼을 항상 카드 하단 라인에 정렬*/
+}
+
+/*품절 · 판매중지 — JSP 가 조건부로 붙인다 (D-10)*/
+.prodcard.soldout {
+	opacity: 0.5;
+}
+
+/*강조 배지 — JSP에서 별도 클래스 조합*/
+.prodcard_badge_gold {
+	font-weight: bold;
+	color: var(--color-text);
+	background-color: var(--color-accent);
+}
+
+.prodcard_badge_new {
+	font-weight: bold;
+	color: var(--color-text-inverse);
+	background-color: var(--color-primary);
+}
+
+/*카드 하단 정렬 균일화 — 구성 태그 줄 수와 무관하게 버튼 라인 정렬*/
+.prodcard {
+	height: 100%;   /*행 높이 전체를 써서 버튼 라인 정렬*/
+}
+
+.prodcard > a {
+	flex-grow: 1;
+}
+
+.prodcard > .btn {
+	margin-top: auto;
+	margin-bottom: var(--space-xs);
+}
+
+/*버튼 라인 정렬 — a(링크) 영역이 남은 세로를 채우고, 가격 아래 여백이 밀리는 걸 흡수한다*/
+.prodcard > a {
+	flex-grow: 1;
+}
+
+.prodcard > a .prodcard_price {
+	margin-bottom: var(--space-xs);   /*가격-구성태그 간격 축소*/
+}
+
+.prodcard > .btn {
+	margin-top: auto !important;
+}
+
+/*배지 유무와 무관하게 카드 내 배지 자리 높이를 고정해 버튼 라인 정렬*/
+.prodcard > a .prodcard_badge:first-of-type {
+	min-height: 22px;
+}
+
+/* === 버튼 라인 통일 + 여백 확보 ===
+   구성 태그 줄수·배지 유무와 무관하게 버튼 라인은 맞추되,
+   버튼 위·아래에 숨통을 틔워주는 여백을 둔다. */
+.prodcard {
+	height: 100%;
+	padding-top: var(--space-sm);
+}
+
+.prodcard > a:not(.btn) {
+	flex-grow: 1;
+}
+
+/*버튼 — 얇은 아웃라인. 구성 태그와의 간격을 두고 하단에 고정*/
+.prodcard > .btn {
+	margin-left: 0;
+	width: 100%;
+	height: 30px;
+	line-height: 30px;
+	font-size: var(--font-size-small);
+	text-align: center;
+	box-sizing: border-box;
+	margin-top: auto;                   /* 남은 공간을 위 여백으로 — 구성태그(2줄)와의 간격 확보 */
+	margin-bottom: var(--space-sm);     /* 카드 바닥과의 여백 */
+	background-color: var(--color-surface);
+	color: var(--color-primary);
+	border: 1px solid var(--color-primary);
+}
+
+/*구성 태그와 버튼 사이 최소 간격 — 2줄 태그일 때도 붙지 않게*/
+.prodcard > span.prodcard_badge:not(:first-of-type) {
+	margin-bottom: var(--space-md);
+}
+
+.prodcard > .btn:hover {
+	background-color: var(--color-primary);
+	color: var(--color-text-inverse);
+}
+
+/* === 버튼 폭·높이 통일 (최종 덮어쓰기) ===
+   카드 폭을 넘거나 높이가 어긋나는 문제를 정리한다.
+   box-sizing: border-box 로 패딩·보더 포함해 카드 폭 안에 정확히 맞춘다. */
+.prodcard > .btn {
+	width: 100% !important;
+	max-width: 100%;
+	height: 30px !important;
+	line-height: 30px !important;
+	padding: 0 !important;
+	margin-right: 0 !important;
+	margin-left: 0 !important;
+	box-sizing: border-box !important;
+	font-size: var(--font-size-small);
+	text-align: center;
+}
+
+/*버튼이 2개(장바구니 담기 / 주문서 넣기)일 때 — 나란히, 폭 반반*/
+.prodcard > .btn:not(:only-of-type) {
+	width: calc(50% - var(--space-xs) / 2);
+}
+
+.prodcard > .btn + .btn {
+	margin-left: var(--space-xs) !important;
+}

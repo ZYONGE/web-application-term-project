@@ -1,1 +1,55 @@
-/* 색상, 폰트, 간격 등 디자인 토큰 (:root 변수) */
+@charset "utf-8";
+
+/*
+  디자인 토큰 — :root 단일 정의 지점 (DECISIONS.md D-02)
+
+  ★ 컨셉 적용 단계 (2026-11-17) — 브랜드 "필살기 (Pill + 필살기)".
+    개인 맞춤 영양제 조합 쇼핑몰. 다크틸(신뢰·헬시) + 볼트옐로우(번개·필살기 임팩트).
+    값만 갈아끼웠다 — 변수 구조는 유지 (D-01 · D-04). 신규 토큰은 ※ 표시.
+
+  ※ 사용 규칙
+    - --color-accent(볼트옐로우) 배경 위 글자는 반드시 --color-text(먹색) 사용. 흰 글자 금지(가독성).
+    - --color-success = 시너지 배지("같이 먹으면 좋아요"), --color-warning = 성분 중복 경고 배지.
+*/
+
+:root {
+	/*바탕 · 글자 · 선*/
+	--color-bg: #FAFDFC;            /* 페이지 배경 — 아주 연한 민트 화이트 */
+	--color-surface: #ffffff;       /* 카드 · 모달 표면 */
+	--color-text: #1A2E2E;          /* 본문 — 틸 기운 먹색 */
+	--color-text-weak: #6B8080;     /* 보조 텍스트 — 틸 그레이 */
+	--color-text-inverse: #ffffff;
+	--color-border: #DDEBE8;        /* 연민트 경계선 */
+	--color-border-strong: #9FC5BF;
+
+	/*역할색 — 필살기 브랜드 (다크틸 #0D5C5C / 볼트옐로우 #FFD540)*/
+	--color-primary: #0D5C5C;       /* 헤더 · 주요 버튼 · 링크 */
+	--color-primary-dark: #084242;  /* 호버 · 푸터 · 강조 배경 */
+	--color-primary-light: #E5F4F1; /* 띠 · 머리줄 · 선택 배경 — 연민트 */
+	--color-accent: #FFD540;        /* CTA 버튼 · 배지 · 하이라이트 — 볼트옐로우 */
+	--color-danger: #E04B4B;        /* 삭제 · 품절 · 에러 */
+	--color-success: #2BA84A;       /* 시너지 배지 */
+	--color-warning: #F59E0B;       /* ※ 신규 — 성분 중복 경고 (조합 빌더 궁합검사) */
+
+	/*타이포 — 실습 관례 기준값 (DECISIONS.md 부록 A)*/
+	--font-base: "Pretendard", "Apple SD Gothic Neo", "맑은 고딕", "나눔고딕", "돋움", Dotum, sans-serif;
+	--font-size-base: 15px;
+	--font-size-small: 13px;
+	--font-size-title: 22px;
+	--line-height-base: 160%;
+
+	/*간격 — 4px 배수 스케일 (D-05)*/
+	--space-xs: 4px;
+	--space-sm: 8px;
+	--space-md: 16px;
+	--space-lg: 24px;
+	--space-xl: 44px;
+
+	/*레이아웃 — 고정폭 중앙정렬 (D-06)*/
+	--layout-width: 1200px;
+	--layout-side-width: 228px;
+	--radius-sm: 4px;
+	--radius-md: 8px;
+	--z-popup-backdrop: 900;
+	--z-popup: 1000;
+}
