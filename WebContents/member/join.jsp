@@ -18,15 +18,17 @@
 		<tr>
 			<th><label for="password">비밀번호 <span class="required">*</span></label></th>
 			<td>
-				<input type="password" id="password" name="password" class="field" data-rule="password">
-				<span class="field_help">8자 이상</span>
+				<input type="password" id="password" name="password" class="field" data-rule="password" data-live>
+				<span class="field_help" data-live-for="password"></span>
+				<span class="field_help">영문 · 숫자 · 특수문자 포함 8~20자</span>
 			</td>
 		</tr>
 		<tr>
 			<th><label for="passwordConfirm">비밀번호 확인 <span class="required">*</span></label></th>
 			<td>
 				<input type="password" id="passwordConfirm" name="passwordConfirm" class="field"
-				       data-confirm="password">
+				       data-confirm="password" data-live>
+				<span class="field_help" data-live-for="passwordConfirm"></span>
 			</td>
 		</tr>
 		<tr>
@@ -47,7 +49,8 @@
 			<th><label for="phone">연락처 <span class="required">*</span></label></th>
 			<td>
 				<input type="text" id="phone" name="phone" class="field"
-				       value="<c:out value='${param.phone}' />" data-rule="phone">
+				       value="<c:out value='${param.phone}' />" data-rule="phone" data-live>
+				<span class="field_help" data-live-for="phone"></span>
 				<span class="field_help">예: 010-1234-5678</span>
 			</td>
 		</tr>

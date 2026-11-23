@@ -58,9 +58,12 @@
 		<tr>
 			<th><label for="zipcode">우편번호 <span class="required">*</span></label></th>
 			<td>
-				<input type="text" id="zipcode" name="zipcode" class="field" data-rule="required"
-				       value="<c:out value='${defaultAddr.zipcode}' />">
-				<span class="field_help">우편번호는 직접 입력합니다.</span>
+				<div class="field_row">
+					<input type="text" id="zipcode" name="zipcode" class="field" data-rule="required"
+					       value="<c:out value='${defaultAddr.zipcode}' />">
+					<button type="button" class="btn" onclick="searchPostcode()">우편번호 검색</button>
+				</div>
+				<span class="field_help">우편번호 검색으로 주소를 고른 뒤 상세 주소를 입력하세요.</span>
 			</td>
 		</tr>
 		<tr>
@@ -96,4 +99,7 @@
 		<a class="btn btn_sub" href="${ctx}/cart/list">장바구니로</a>
 	</div>
 </form>
+<%-- 카카오(다음) 우편번호 검색 — 외부 스크립트. 못 불러오면 postcode.js 가 알리고 직접 입력하게 둔다 --%>
+<script src="https://t1.kakaocdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+<script src="${ctx}/js/postcode.js?v=${assetV}"></script>
 <%@ include file="../common/footer.jsp" %>

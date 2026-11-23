@@ -63,9 +63,55 @@
     </c:if>
   </div>
 </article>
-<section class="prod_desc">
+<%-- 상세 탭 — 누르면 해당 구역으로 이동한다. 화면 위에 붙어 따라오고 보고 있는 구역의 탭이 굵어진다 (js/prodtabs.js) --%>
+<nav class="prod_tabs" data-prod-tabs>
+  <a href="#tab-detail" class="on">상품상세</a>
+  <a href="#tab-review">상품평 (${product.reviewCount})</a>
+  <a href="#tab-qna">상품문의 (${qnaList.size()})</a>
+</nav>
+<section class="prod_desc" id="tab-detail">
   <h3>상품 설명</h3>
+  <%-- AI 상품 설명 요약 (LLM) — 설명이 150자를 넘을 때만. 미리 만들어 둔 요약이 없으면 설명 앞부분을 대신 보인다 --%>
+  <c:if test="${product.longDesc}">
+    <div class="llm_box">
+      <c:choose>
+        <c:when test="${not empty llm.desc}">
+          <p class="llm_label">AI 요약</p>
+          <p class="llm_text"><c:out value="${llm.desc}" /></p>
+          <p class="llm_note">상품 설명을 바탕으로 AI 가 만든 요약입니다. 정확한 내용은 아래 설명 원문에서 확인하세요.</p>
+        </c:when>
+        <c:otherwise>
+          <p class="llm_label">상품 요약</p>
+          <p class="llm_text"><c:out value="${product.descPreview}" /></p>
+          <p class="llm_note">AI 요약을 준비하고 있어요. 지금은 설명 앞부분을 보여드려요.</p>
+        </c:otherwise>
+      </c:choose>
+    </div>
+  </c:if>
   <p><c:out value="${product.description}" /></p>
+  <%-- 상품정보 상세보기 — 필수 표기정보 · 상세 이미지 (sql/product_detail.sql 의 notice_info · detail_images) --%>
+  <c:if test="${not empty product.noticeRows or not empty product.detailImageList}">
+    <details class="prod_desc_more">
+      <summary><span class="more_closed">상품정보 상세보기</span><span class="more_opened">상품정보 접기</span></summary>
+      <div class="prod_detail_body">
+        <c:if test="${not empty product.noticeRows}">
+          <h4>필수 표기정보</h4>
+          <table class="formtable prod_notice">
+            <c:forEach var="row" items="${product.noticeRows}">
+              <tr><th><c:out value="${row[0]}" /></th><td><c:out value="${row[1]}" /></td></tr>
+            </c:forEach>
+          </table>
+        </c:if>
+        <c:if test="${not empty product.detailImageList}">
+          <div class="prod_detail_imgs">
+            <c:forEach var="src" items="${product.detailImageList}" varStatus="st">
+              <img src="${ctx}${src}" alt="<c:out value='${product.name}' /> 상세 이미지 ${st.count}" loading="lazy">
+            </c:forEach>
+          </div>
+        </c:if>
+      </div>
+    </details>
+  </c:if>
 </section>
 <c:if test="${product.track}">
   <section class="prod_track">
@@ -94,8 +140,61 @@
     </c:if>
   </section>
 </c:if>
-<section class="prod_review">
+<section class="prod_review" id="tab-review">
   <h3>리뷰 (${product.reviewCount}건)</h3>
+  <%-- 별점 한눈에 보기 — 평균 · 만족 인원 · 별점 분포 막대 (ProductServlet.ratingDistribution) --%>
+  <c:if test="${not empty reviews}">
+    <c:set var="satisfied" value="0" />
+    <c:forEach var="row" items="${ratingDist}">
+      <c:if test="${row.score >= 4}"><c:set var="satisfied" value="${satisfied + row.count}" /></c:if>
+    </c:forEach>
+    <div class="review_stats">
+      <p class="review_avg">
+        <span class="review_stars">
+          <c:forEach begin="1" end="5" var="i"><span class="${i <= product.avgRating + 0.5 ? 'on' : ''}">★</span></c:forEach>
+        </span>
+        <strong><fmt:formatNumber value="${product.avgRating}" pattern="0.0" /></strong>
+      </p>
+      <p class="review_satisfied">리뷰 ${product.reviewCount}건 중 ${satisfied}건이 만족했어요 (4점 이상)</p>
+      <ul class="review_dist">
+        <c:forEach var="row" items="${ratingDist}">
+          <li>
+            <span class="review_dist_label">${row.label}</span>
+            <span class="review_dist_bar"><span style="width: ${row.percent}%"></span></span>
+            <span class="review_dist_pct">${row.percent}%</span>
+          </li>
+        </c:forEach>
+      </ul>
+    </div>
+  </c:if>
+  <%-- AI 리뷰 요약 (LLM) — 리뷰가 2건 이상일 때. 좋게 평가한 점 / 참고할 점. 미리 만들어 둔 요약만 보인다 --%>
+  <c:if test="${product.reviewCount >= 2}">
+    <div class="llm_box">
+      <p class="llm_label">AI 가 요약한 후기</p>
+      <c:choose>
+        <c:when test="${not empty llm.reviewGood}">
+          <p class="llm_head">이런 점을 좋게 평가했어요</p>
+          <ul class="llm_list">
+            <c:forEach var="t" items="${llm.reviewGood}"><li><c:out value="${t}" /></li></c:forEach>
+          </ul>
+          <c:if test="${not empty llm.reviewCaution}">
+            <p class="llm_head llm_caution">이 점은 참고해주세요</p>
+            <ul class="llm_list">
+              <c:forEach var="t" items="${llm.reviewCaution}"><li><c:out value="${t}" /></li></c:forEach>
+            </ul>
+          </c:if>
+          <p class="llm_note">구매자 리뷰 ${product.reviewCount}건을 바탕으로 AI 가 만든 요약입니다.</p>
+        </c:when>
+        <c:when test="${not empty llm.review}">
+          <p class="llm_text"><c:out value="${llm.review}" /></p>
+          <p class="llm_note">구매자 리뷰 ${product.reviewCount}건을 바탕으로 AI 가 만든 요약입니다.</p>
+        </c:when>
+        <c:otherwise>
+          <p class="llm_note">AI 가 리뷰를 요약하는 중이에요. 잠시 후 새로고침하면 보여요.</p>
+        </c:otherwise>
+      </c:choose>
+    </div>
+  </c:if>
   <table class="listtable">
     <thead class="listtable_head">
       <tr><th class="col_rating">별점</th><th class="col_content">내용</th><th class="col_writer">작성자</th><th class="col_date">작성일</th></tr>
@@ -114,7 +213,7 @@
   </table>
   <p class="field_help">리뷰는 배송완료된 주문 건에서만 쓸 수 있습니다. (마이페이지 &gt; 내 리뷰)</p>
 </section>
-<section class="prod_qna">
+<section class="prod_qna" id="tab-qna">
   <h3>상품 문의</h3>
   <c:if test="${me.role == 'USER'}"><button type="button" class="btn" data-popup-open="qnaPopup">문의하기</button></c:if>
   <c:if test="${empty me}">
@@ -163,4 +262,5 @@
   </form>
 </dialog>
 <script src="${ctx}/js/custom.js?v=${assetV}" defer></script>
+<script src="${ctx}/js/prodtabs.js?v=${assetV}" defer></script>
 <%@ include file="../common/footer.jsp" %>

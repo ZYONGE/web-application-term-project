@@ -62,7 +62,10 @@
 				<tr><th><label for="receiverPhone">연락처</label></th>
 				    <td><input type="text" id="receiverPhone" name="receiverPhone" class="field" data-rule="phone"></td></tr>
 				<tr><th><label for="zipcode">우편번호</label></th>
-				    <td><input type="text" id="zipcode" name="zipcode" class="field" data-rule="required"></td></tr>
+				    <td><div class="field_row">
+				    	<input type="text" id="zipcode" name="zipcode" class="field" data-rule="required">
+				    	<button type="button" class="btn" onclick="searchPostcode()">우편번호 검색</button>
+				    </div></td></tr>
 				<tr><th><label for="addr1">주소</label></th>
 				    <td><input type="text" id="addr1" name="addr1" class="field" data-rule="required"></td></tr>
 				<tr><th><label for="addr2">상세 주소</label></th>
@@ -70,7 +73,7 @@
 				<tr><th>기본 배송지</th>
 				    <td><label><input type="checkbox" name="isDefault" value="Y"> 기본 배송지로 지정</label></td></tr>
 			</table>
-			<p class="field_help">우편번호는 직접 입력합니다.</p>
+			<p class="field_help">우편번호 검색으로 주소를 고른 뒤 상세 주소를 입력하세요.</p>
 		</div>
 		<div class="popup_foot">
 			<button type="submit" class="btn btn_primary">저장</button>
@@ -78,4 +81,7 @@
 		</div>
 	</form>
 </dialog>
+<%-- 카카오(다음) 우편번호 검색 — 외부 스크립트. 못 불러오면 postcode.js 가 알리고 직접 입력하게 둔다 --%>
+<script src="https://t1.kakaocdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+<script src="${ctx}/js/postcode.js?v=${assetV}"></script>
 <%@ include file="../common/footer.jsp" %>

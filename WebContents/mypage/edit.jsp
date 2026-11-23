@@ -33,12 +33,17 @@
 		</tr>
 		<tr>
 			<th><label for="newPassword">새 비밀번호</label></th>
-			<td><input type="password" id="newPassword" name="newPassword" class="field" data-rule="password"></td>
+			<td>
+				<input type="password" id="newPassword" name="newPassword" class="field" data-rule="password" data-live>
+				<span class="field_help" data-live-for="newPassword"></span>
+				<span class="field_help">영문 · 숫자 · 특수문자 포함 8~20자</span>
+			</td>
 		</tr>
 		<tr>
 			<th><label for="newPasswordConfirm">새 비밀번호 확인</label></th>
 			<td><input type="password" id="newPasswordConfirm" name="newPasswordConfirm" class="field"
-			           data-confirm="newPassword"></td>
+			           data-confirm="newPassword" data-live>
+				<span class="field_help" data-live-for="newPasswordConfirm"></span></td>
 		</tr>
 	</table>
 	<div class="btnstyle">

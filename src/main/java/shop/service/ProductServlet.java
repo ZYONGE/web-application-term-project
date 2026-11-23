@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -19,7 +20,9 @@ import shop.dao.ConfigDAO;
 import shop.dao.ConflictDAO;
 import shop.dao.ProductDAO;
 import shop.model.Category;
+import shop.llm.LlmService;
 import shop.model.Product;
+import shop.model.Review;
 
 /* 상품 목록 · 상품 상세 */
 @WebServlet({ "/product/list", "/product/view" })
@@ -100,8 +103,12 @@ public class ProductServlet extends BaseServlet {
 				quickDays.add(d);
 			}
 		}
+		List<Review> reviews = BoardDAO.productReviews(product.getProductId());
 		request.setAttribute("product", product);
-		request.setAttribute("reviews", BoardDAO.productReviews(product.getProductId()));
+		request.setAttribute("reviews", reviews);
+		request.setAttribute("ratingDist", ratingDistribution(reviews));
+		/* AI 요약(상품 설명 · 리뷰) — 미리 저장된 것만 읽는다. 없거나 낡았으면 백그라운드가 만든다 */
+		request.setAttribute("llm", new LlmService().summariesFor(product, reviews));
 		request.setAttribute("qnaList", BoardDAO.productQna(product.getProductId(), memberId, admin));
 		request.setAttribute("wished", memberId > 0 && CartDAO.isWished(memberId, product.getProductId()));
 		request.setAttribute("conflicts", ConflictDAO.conflictsFor(product));
@@ -109,5 +116,26 @@ public class ProductServlet extends BaseServlet {
 		request.setAttribute("dayLimit", dayLimit);
 		request.setAttribute("dayInit", Math.min(dayLimit, ConfigDAO.DEFAULT_DAYS));
 		render(request, response, "product/view", product.getName());
+	}
+
+	/* 별점 분포 — 리뷰 위 막대 그래프. AI 가 아니라 리뷰를 그대로 센다. 5점부터 { score, label, count, percent } */
+	private List<Map<String, Object>> ratingDistribution(List<Review> reviews) {
+		String[] labels = { "나쁨", "별로", "보통", "좋음", "최고" };
+		int[] counts = new int[6];
+		for (Review r : reviews) {
+			if (r.getRating() >= 1 && r.getRating() <= 5) {
+				counts[r.getRating()]++;
+			}
+		}
+		List<Map<String, Object>> rows = new ArrayList<Map<String, Object>>();
+		for (int score = 5; score >= 1; score--) {
+			Map<String, Object> row = new HashMap<String, Object>();
+			row.put("score", score);
+			row.put("label", labels[score - 1]);
+			row.put("count", counts[score]);
+			row.put("percent", reviews.isEmpty() ? 0 : Math.round(counts[score] * 100f / reviews.size()));
+			rows.add(row);
+		}
+		return rows;
 	}
 }

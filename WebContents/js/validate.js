@@ -13,9 +13,12 @@
 			test: function (v) { return /^[A-Za-z0-9_]{4,30}$/.test(v); },
 			message: "아이디는 영문 · 숫자 · 밑줄 4~30자로 입력하세요."
 		},
+		/* 영문 · 숫자 · 특수문자 각 1자 이상, 공백 · 한글 없이 8~20자 (MemberServlet.PASSWORD_REGEX) */
 		password: {
-			test: function (v) { return v.length >= 8 && v.length <= 100; },
-			message: "비밀번호는 8자 이상으로 입력하세요."
+			test: function (v) { return /^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z0-9])[\x21-\x7E]{8,20}$/.test(v); },
+			message: "비밀번호는 영문 · 숫자 · 특수문자를 모두 넣어 8~20자로 입력하세요.",
+			okMessage: "사용할 수 있는 비밀번호입니다.",
+			liveMessage: "적절하지 않은 비밀번호입니다. 영문 · 숫자 · 특수문자를 모두 넣어 8~20자로 입력하세요."
 		},
 		name: {
 			test: function (v) { return v.length <= 30; },
@@ -27,7 +30,9 @@
 		},
 		phone: {
 			test: function (v) { return /^0\d{1,2}-?\d{3,4}-?\d{4}$/.test(v); },
-			message: "연락처 형식이 올바르지 않습니다. (예: 010-1234-5678)"
+			message: "연락처 형식이 올바르지 않습니다. (예: 010-1234-5678)",
+			okMessage: "올바른 전화번호 형식입니다.",
+			liveMessage: "적절하지 않은 전화번호입니다. (예: 010-1234-5678)"
 		},
 		required: {
 			test: function (v) { return v.length > 0; },
@@ -132,6 +137,69 @@
 		}
 		if (!window.confirm(el.getAttribute("data-confirm-message"))) {
 			event.preventDefault();
+		}
+	});
+
+	/*
+	  실시간 안내 — data-live 가 붙은 입력은 칠 때마다 아래 줄에 결과를 보여준다.
+	    <input ... data-rule="password" data-live>
+	    <span class="field_help" data-live-for="password"></span>   ← 없으면 입력 바로 뒤에 만든다
+	  비밀번호 확인(data-confirm + data-live)은 짝 입력과 같은지만 본다.
+	  제출할 때의 검사(validateForm)와 서버 검사는 그대로다 — 이것은 안내일 뿐이다.
+	*/
+	function liveBox(field) {
+		var box = document.querySelector("[data-live-for='" + field.id + "']");
+		if (!box) {
+			box = document.createElement("span");
+			box.className = "field_help";
+			box.setAttribute("data-live-for", field.id);
+			field.parentNode.insertBefore(box, field.nextSibling);
+		}
+		return box;
+	}
+
+	function showLive(field, ok, text) {
+		var box = liveBox(field);
+		box.textContent = text;
+		box.classList.remove("field_ok", "field_ng");
+		if (text) {
+			box.classList.add(ok ? "field_ok" : "field_ng");
+		}
+	}
+
+	function checkLive(field) {
+		var value = field.value || "";
+		if (value === "") {
+			showLive(field, false, "");
+			return;
+		}
+		var confirmOf = field.getAttribute("data-confirm");
+		if (confirmOf && field.form) {
+			var target = field.form.querySelector("[name='" + confirmOf + "']");
+			var same = target && target.value === value;
+			showLive(field, same, same ? "비밀번호가 일치합니다." : "비밀번호가 일치하지 않습니다.");
+			return;
+		}
+		var rule = RULES[field.getAttribute("data-rule")];
+		if (!rule) {
+			return;
+		}
+		var ok = rule.test(value.trim(), field);
+		showLive(field, ok, ok ? (rule.okMessage || "올바른 형식입니다.") : (rule.liveMessage || rule.message));
+	}
+
+	document.addEventListener("input", function (event) {
+		var field = event.target;
+		if (!field.hasAttribute || !field.form) {
+			return;
+		}
+		if (field.hasAttribute("data-live")) {
+			checkLive(field);
+		}
+		/* 비밀번호를 고치면 확인 칸 결과도 다시 맞춘다 */
+		var pair = field.form.querySelector("[data-live][data-confirm='" + field.name + "']");
+		if (pair && pair.value) {
+			checkLive(pair);
 		}
 	});
 

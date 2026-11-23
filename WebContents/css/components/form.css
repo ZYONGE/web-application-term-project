@@ -99,6 +99,15 @@ textarea.field,
 	color: var(--color-text-weak);
 }
 
+/*실시간 입력 안내 — validate.js 의 data-live (정상 / 부적절)*/
+.field_help.field_ok {
+	color: var(--color-success);
+}
+
+.field_help.field_ng {
+	color: var(--color-danger);
+}
+
 /*필수 입력 표시*/
 .required {
 	color: var(--color-danger);
@@ -121,4 +130,15 @@ textarea.field,
 
 .btnstyle form {
 	margin: 0px;
+}
+
+/*입력칸 + 버튼 한 줄 — 우편번호 검색*/
+.field_row {
+	display: flex;
+	gap: var(--space-xs);
+	align-items: center;
+}
+
+.field_row .field {
+	flex-grow: 1;
 }

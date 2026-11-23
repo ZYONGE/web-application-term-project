@@ -1,7 +1,7 @@
 -- =============================================================
--- 샌드박스 스키마 DDL (sandbox 전용)
+-- 스키마 DDL (main)
 --
---   대상 DB : webapplication_sandbox
+--   대상 DB : shopdb
 --   근거    : docs/ERD.md (커스텀 영양제 컨셉 · docs/CONCEPT.md)
 --               § 3    테이블 21개
 --               § 4    CHECK 10 · 복합 키 · 인덱스 10
@@ -11,7 +11,7 @@
 --             cart.quantity · order_item.quantity · combo.days 는 섭취 일수(= 포 수)
 --   공통    : ENGINE=InnoDB / utf8mb4 / utf8mb4_unicode_ci
 --
---   실행    : mysql -D webapplication_sandbox < sql/schema.sql   (재실행 가능)
+--   실행    : mysql -D shopdb < sql/schema.sql   (재실행 가능)
 --   다음    : sql/data.sql
 --
 --   ※ 이 ERD 는 실험용이다. main 의 설계가 아니며 main 에 반영하지 않는다. (CLAUDE.md § 4.5)
@@ -25,7 +25,7 @@
 --   클라이언트에서는 깨져 보인다. SET NAMES 로 세션 문자셋을 못 박는다.
 SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci;
 
-USE webapplication_sandbox;
+USE shopdb;
 
 -- 제거 — 생성의 역순 ------------------------------------------------
 DROP VIEW  IF EXISTS v_low_stock;
@@ -34,6 +34,7 @@ DROP VIEW  IF EXISTS v_admin_order;
 DROP VIEW  IF EXISTS v_delivery_status_count;
 DROP VIEW  IF EXISTS v_sales_daily;
 
+DROP TABLE IF EXISTS llm_summary;
 DROP TABLE IF EXISTS admin_log;
 DROP TABLE IF EXISTS qna;
 DROP TABLE IF EXISTS review;
@@ -103,7 +104,8 @@ CREATE TABLE category (
 -- =============================================================
 --   price · stock 이 UNSIGNED 다. 재고 차감에서 WHERE stock >= ? 가드를
 --   빼먹으면 음수가 되는 대신 에러가 난다 — 버그가 데이터로 남지 않는다.
---   thumbnail 은 웹 참조 경로 '/upload/<파일명>' 만 넣는다.
+--   thumbnail 은 웹 참조 경로만 넣는다 (컨텍스트 경로 · 물리 경로 없이 '/' 로 시작).
+--     관리자 업로드 '/upload/<파일명>' · 시드 사진 '/images/product/<파일명>'
 --
 --   ★ status 에 '품절' 이 없다. status 는 관리자의 전시 의도만 담고 재고를 모른다.
 --     재고 상태를 status 에 복사하면 두 컬럼이 같은 사실을 말하게 되고, 동기화를
@@ -569,6 +571,24 @@ CREATE TABLE admin_log (
     KEY idx_admin_log_member (member_id),
     CONSTRAINT fk_admin_log_member FOREIGN KEY (member_id)
         REFERENCES member (member_id) ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
+
+
+-- =============================================================
+-- 18. llm_summary — AI 요약 저장 (LLM 상품 설명 · 리뷰 요약)   sql/llm_summary.sql
+-- =============================================================
+--   Ollama 응답이 수십 초 ~ 3분이라 화면을 열 때 만들지 않는다. 백그라운드(LlmWorker)가 만들어 저장한다.
+--   source_key = 요약할 때 쓴 원본의 SHA-256 — 설명 · 리뷰가 바뀌면 다시 만든다. 상품을 지우면 함께 지운다.
+CREATE TABLE llm_summary (
+    product_id   INT UNSIGNED NOT NULL,
+    summary_type ENUM('DESC', 'REVIEW') NOT NULL,
+    content      VARCHAR(1000) NOT NULL,
+    source_key   CHAR(64)      NOT NULL,
+    created_at   DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP
+                               ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (product_id, summary_type),
+    CONSTRAINT fk_llm_summary_product FOREIGN KEY (product_id)
+        REFERENCES product (product_id) ON DELETE CASCADE ON UPDATE RESTRICT
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 
 

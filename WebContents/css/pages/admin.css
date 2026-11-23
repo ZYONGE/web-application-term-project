@@ -103,3 +103,15 @@
 	padding-bottom: 2px;
 	font-size: var(--font-size-small);
 }
+
+/*AI 요약 전체 생성 — 상품 관리 제목 아래 한 줄*/
+.admin_llm {
+	display: flex;
+	align-items: center;
+	gap: var(--space-sm);
+	margin-bottom: var(--space-md);
+}
+
+.admin_llm .field_help {
+	margin-top: 0;
+}

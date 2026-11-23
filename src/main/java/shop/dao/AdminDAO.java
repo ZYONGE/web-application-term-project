@@ -151,14 +151,14 @@ public class AdminDAO {
 	public static final List<String> TABLES = Arrays.asList(
 		"member", "address", "category", "product", "track_item", "supplement_conflict", "product_image",
 		"cart", "wishlist", "combo", "combo_item", "orders", "order_item", "payment", "delivery",
-		"delivery_history", "review", "qna", "notice", "system_config", "admin_log",
+		"delivery_history", "review", "qna", "notice", "system_config", "admin_log", "llm_summary",
 		"v_sales_daily", "v_delivery_status_count", "v_admin_order", "v_admin_member", "v_low_stock");
 
 	/* 전체 초기화 때 비우는 순서 (member 는 USER 만 지운다) */
 	public static final String[] TRUNCATE_ORDER = {
 		"delivery_history", "delivery", "payment", "review", "order_item", "orders",
 		"cart", "wishlist", "combo_item", "combo", "qna", "product_image",
-		"track_item", "supplement_conflict", "product", "category", "notice", "admin_log" };
+		"llm_summary", "track_item", "supplement_conflict", "product", "category", "notice", "admin_log" };
 
 	/* 테이블 한 페이지 — 정렬 컬럼은 실제 컬럼일 때만 쓴다 */
 	public static Map<String, Object> browse(String table, String sort, boolean desc, int page, int size)

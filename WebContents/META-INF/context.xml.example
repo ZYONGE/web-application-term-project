@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  DB 커넥션 풀 설정 예시.
+  DB 커넥션 풀 설정 예시 (main)
 
-  사용법: 이 파일을 같은 디렉터리에 context.xml 로 복사한 뒤 값을 채운다.
+  사용법: 이 파일을 같은 디렉터리에 context.xml 로 복사한 뒤 username / password 를 채운다.
           context.xml 은 .gitignore 로 추적 제외되므로 접속 정보가 커밋되지 않는다.
 
       cp WebContents/META-INF/context.xml.example WebContents/META-INF/context.xml
 
-  주의: name / username / password / url 의 스키마명은 sql/schema.sql 과 반드시 일치시킨다.
-        (담당: DB Schema 트랙 — docs/tracks/SCHEMA.md)
+  스키마는 shopdb 로 고정한다.
+    - sandbox(webapplication_sandbox)와 데이터를 공유하지 않는다. 실험이 main 의 DB를 건드릴 수 없도록 분리한 것이다.
+    - 수업 실습 DB(web)도 쓰지 않는다. 실습 테이블과 섞이지 않는다.
+    - 생성 스크립트는 sql/00_create_database.sql (관리자 계정으로 1회 실행, 이미 적용됨)
 -->
 <Context>
   <Resource
@@ -16,7 +18,7 @@
       auth="Container"
       type="javax.sql.DataSource"
       driverClassName="com.mysql.cj.jdbc.Driver"
-      url="jdbc:mysql://localhost:3306/CHANGE_ME_SCHEMA?useSSL=false&amp;allowPublicKeyRetrieval=true&amp;serverTimezone=Asia/Seoul&amp;characterEncoding=UTF-8"
+      url="jdbc:mysql://localhost:3306/shopdb?useSSL=false&amp;allowPublicKeyRetrieval=true&amp;serverTimezone=Asia/Seoul&amp;characterEncoding=UTF-8&amp;connectionCollation=utf8mb4_unicode_ci"
       username="CHANGE_ME_USER"
       password="CHANGE_ME_PASSWORD"
       maxTotal="20"
@@ -26,4 +28,14 @@
       testOnBorrow="true"
       removeAbandonedOnBorrow="true"
       removeAbandonedTimeout="60" />
+
+  <!--
+    LLM (AI 요약 · 연관 검색) — 학교 GPU 서버 Ollama. 앱은 localhost:31434 를 부르고,
+    tools/llm/start-relay.sh 가 k8s 중계(k8s/llm-relay.yaml)로 학교 서버에 잇는다.
+    설정이 없어도 앱은 뜬다 — AI 칸만 "준비 중" 으로 보인다.
+  -->
+  <Environment name="llm/ollamaUrl" type="java.lang.String" override="false"
+      value="http://localhost:31434/api/generate" />
+  <Environment name="llm/ollamaModel" type="java.lang.String" override="false"
+      value="gemma3:12b" />
 </Context>

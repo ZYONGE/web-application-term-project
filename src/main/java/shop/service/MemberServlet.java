@@ -124,13 +124,16 @@ public class MemberServlet extends BaseServlet {
 		}
 	}
 
-	/* 비밀번호 규칙 — 8자 이상, 확인 칸과 같아야 한다 */
+	/* 비밀번호 규칙 — 영문 · 숫자 · 특수문자 각 1자 이상, 공백 · 한글 없이 8~20자 (validate.js 의 password 와 같다) */
+	static final String PASSWORD_REGEX = "(?=.*[A-Za-z])(?=.*\\d)(?=.*[^A-Za-z0-9])[\\x21-\\x7E]{8,20}";
+
+	/* 비밀번호 규칙 — 위 형식, 확인 칸과 같아야 한다 */
 	static void checkPassword(String password, String confirm) {
 		if (isEmpty(password)) {
 			throw new Fail("비밀번호를 입력하세요.");
 		}
-		if (password.length() < 8 || password.length() > 100) {
-			throw new Fail("비밀번호는 8자 이상으로 입력하세요.");
+		if (!password.matches(PASSWORD_REGEX)) {
+			throw new Fail("비밀번호는 영문 · 숫자 · 특수문자를 모두 넣어 8~20자로 입력하세요.");
 		}
 		if (confirm != null && !password.equals(confirm)) {
 			throw new Fail("비밀번호 확인이 일치하지 않습니다.");

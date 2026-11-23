@@ -1,6 +1,12 @@
 <%@ include file="../common/header.jsp" %>
 <%@ include file="../common/adminnav.jsp" %>
 <h2>상품 관리</h2>
+<%-- AI 요약(설명 · 리뷰) 미리 만들기 — 백그라운드에서 돈다. 바뀐 상품만 다시 만든다 (LlmServlet) --%>
+<form class="admin_llm" action="${ctx}/admin/llm/refresh" method="post">
+  <button type="submit" class="btn btn_small"
+          data-confirm-message="판매중인 모든 상품의 AI 요약을 백그라운드에서 만듭니다. 상품마다 수십 초 걸립니다. 진행할까요?">AI 요약 전체 생성</button>
+  <span class="field_help">상품 설명 · 리뷰가 바뀐 상품만 다시 요약합니다. 상세 페이지를 열 때도 자동으로 확인합니다.</span>
+</form>
 <form class="admin_filter" action="${ctx}/admin/products" method="get">
 	<select name="categoryId">
 		<option value="0">전체 카테고리</option>

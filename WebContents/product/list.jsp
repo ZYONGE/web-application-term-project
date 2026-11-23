@@ -33,4 +33,13 @@
   <c:if test="${empty pageData.list}"><li class="empty">조건에 맞는 상품이 없습니다.</li></c:if>
 </ul>
 <%@ include file="../common/paging.jsp" %>
+<%-- AI 연관 검색 (LLM) — 검색어가 있을 때만. 페이지를 먼저 그리고 js/llm.js 가 채운다. 실패 · 추천 없음이면 숨긴다 --%>
+<c:if test="${not empty param.keyword}">
+  <section class="llm_related" data-llm-related data-ctx="${ctx}" data-keyword="<c:out value='${param.keyword}' />" hidden>
+    <h3>AI 추천 연관 상품</h3>
+    <p class="field_help" data-llm-status></p>
+    <ul class="prodlist" data-llm-list></ul>
+  </section>
+  <script src="${ctx}/js/llm.js?v=${assetV}" defer></script>
+</c:if>
 <%@ include file="../common/footer.jsp" %>
