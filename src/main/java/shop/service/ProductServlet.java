@@ -19,8 +19,8 @@ import shop.dao.CategoryDAO;
 import shop.dao.ConfigDAO;
 import shop.dao.ConflictDAO;
 import shop.dao.ProductDAO;
-import shop.model.Category;
 import shop.llm.LlmService;
+import shop.model.Category;
 import shop.model.Product;
 import shop.model.Review;
 
@@ -43,8 +43,12 @@ public class ProductServlet extends BaseServlet {
 	private void list(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException, SQLException {
 		int categoryId = intParam(request, "categoryId", 0);
-		String type = ProductDAO.isType(param(request, "type")) ? param(request, "type") : null;
+		String type = param(request, "type");
+		if (!ProductDAO.isType(type)) {
+			type = null;
+		}
 		String keyword = param(request, "keyword");
+		boolean hasKeyword = keyword != null && !keyword.isEmpty();
 		String sort = param(request, "sort", "latest");
 		Category current = categoryId > 0 ? CategoryDAO.byId(categoryId) : null;
 
@@ -66,13 +70,20 @@ public class ProductServlet extends BaseServlet {
 			}
 		}
 		boolean tabMode = !tabRoots.isEmpty();
-		String heading = current != null ? current.getName()
-				: tabRoots.size() == 1 ? tabRoots.get(0).getName()
-				: keyword != null && !keyword.isEmpty() ? "'" + keyword + "' 검색 결과" : "전체 영양제";
+		String heading;
+		if (current != null) {
+			heading = current.getName();
+		} else if (tabRoots.size() == 1) {
+			heading = tabRoots.get(0).getName();
+		} else if (hasKeyword) {
+			heading = "'" + keyword + "' 검색 결과";
+		} else {
+			heading = "전체 영양제";
+		}
 
 		String url = "/product/list?" + (categoryId > 0 ? "categoryId=" + categoryId + "&" : "")
 				+ (type != null ? "type=" + type + "&" : "")
-				+ (keyword != null && !keyword.isEmpty() ? "keyword=" + URLEncoder.encode(keyword, "UTF-8") + "&" : "")
+				+ (hasKeyword ? "keyword=" + URLEncoder.encode(keyword, "UTF-8") + "&" : "")
 				+ "sort=" + sort + "&";
 
 		request.setAttribute("heading", heading);
@@ -93,7 +104,7 @@ public class ProductServlet extends BaseServlet {
 			return;
 		}
 		int memberId = loginId(request);
-		boolean admin = loginMember(request) != null && "ADMIN".equals(loginMember(request).getRole());
+		boolean admin = "ADMIN".equals(loginRole(request));
 
 		/* 섭취 일수 — 재고 · 상한보다 많이 고를 수 없다. 처음 값은 30일 */
 		int dayLimit = Math.min(product.getStock(), ConfigDAO.maxDays());

@@ -50,8 +50,11 @@ public class MypageServlet extends BaseServlet {
 			/* 리뷰를 쓸 수 있는 주문 상품 = 배송완료된 정상 주문 중 아직 리뷰가 없는 것 (최근 주문 20건에서) */
 			List<Map<String, Object>> writable = new ArrayList<Map<String, Object>>();
 			for (Order o : OrderDAO.myOrders(memberId, 1, 20).getList()) {
+				if (!"배송완료".equals(o.getDeliveryStatus()) || !"정상".equals(o.getOrderStatus())) {
+					continue;
+				}
 				for (Item item : o.getItems()) {
-					if ("배송완료".equals(o.getDeliveryStatus()) && "정상".equals(o.getOrderStatus()) && !item.isReviewWritten()) {
+					if (!item.isReviewWritten()) {
 						Map<String, Object> row = new HashMap<String, Object>();
 						row.put("orderNo", o.getOrderNo());
 						row.put("item", item);
@@ -90,11 +93,14 @@ public class MypageServlet extends BaseServlet {
 		try {
 			switch (path) {
 			case "/mypage/edit":
-				MemberServlet.checkProfile(param(request, "name"), param(request, "email"), param(request, "phone"));
-				if (MemberDAO.exists("email", param(request, "email"), memberId)) {
+				String name = param(request, "name");
+				String email = param(request, "email");
+				String phone = param(request, "phone");
+				MemberServlet.checkProfile(name, email, phone);
+				if (MemberDAO.exists("email", email, memberId)) {
 					throw new Fail("다른 회원이 사용 중인 이메일입니다.");
 				}
-				MemberDAO.update(memberId, param(request, "name"), param(request, "email"), param(request, "phone"));
+				MemberDAO.update(memberId, name, email, phone);
 				request.getSession().setAttribute("loginMember", MemberDAO.byId(memberId));
 				flash(request, "회원 정보를 수정했습니다.");
 				break;

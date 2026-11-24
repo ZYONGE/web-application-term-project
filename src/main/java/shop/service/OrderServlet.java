@@ -46,10 +46,11 @@ public class OrderServlet extends BaseServlet {
 				return;
 			}
 			int total = CartServlet.sumOrderable(items);
+			int fee = ConfigDAO.deliveryFee(total);
 			request.setAttribute("items", items);
 			request.setAttribute("totalPrice", total);
-			request.setAttribute("deliveryFee", ConfigDAO.deliveryFee(total));
-			request.setAttribute("payAmount", total + ConfigDAO.deliveryFee(total));
+			request.setAttribute("deliveryFee", fee);
+			request.setAttribute("payAmount", total + fee);
 			request.setAttribute("member", loginMember(request));
 			request.setAttribute("defaultAddr", MemberDAO.defaultAddress(memberId));
 			request.setAttribute("addresses", MemberDAO.addresses(memberId));
@@ -88,7 +89,8 @@ public class OrderServlet extends BaseServlet {
 	protected void post(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException, SQLException {
 		int orderId = intParam(request, "orderId", 0);
-		if (request.getServletPath().equals("/order/cancel")) {
+		String path = request.getServletPath();
+		if (path.equals("/order/cancel")) {
 			try {
 				cancel(orderId, loginId(request), false);
 				flash(request, "주문을 취소했습니다. 재고가 복구되었습니다.");
@@ -96,7 +98,7 @@ public class OrderServlet extends BaseServlet {
 				flashError(request, e.getMessage());
 			}
 			redirect(request, response, "/order/view?orderId=" + orderId);
-		} else if (request.getServletPath().equals("/order/pay")) {
+		} else if (path.equals("/order/pay")) {
 			try {
 				orderId = pay(request, loginId(request));
 				request.getSession().setAttribute("justPaidOrderId", orderId);
@@ -176,7 +178,10 @@ public class OrderServlet extends BaseServlet {
 		Product track = new Product();
 		track.setTrackItems(ProductDAO.trackItems(trackId));
 		String names = track.getItemNames();
-		return names.isEmpty() ? "(구성 없음)" : names.length() <= 500 ? names : names.substring(0, 500);
+		if (names.isEmpty()) {
+			return "(구성 없음)";
+		}
+		return names.length() <= 500 ? names : names.substring(0, 500);
 	}
 
 	/*

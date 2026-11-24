@@ -43,7 +43,7 @@ public class CustomServlet extends BaseServlet {
 			render(request, response, "mypage/combo", "내 조합");
 			return;
 		}
-		boolean user = loginMember(request) != null && "USER".equals(loginMember(request).getRole());
+		boolean user = "USER".equals(loginRole(request));
 		int maxDays = ConfigDAO.maxDays();
 		int days = intParam(request, "days", ConfigDAO.DEFAULT_DAYS);
 
@@ -92,11 +92,7 @@ public class CustomServlet extends BaseServlet {
 				}
 			}
 		} else if (param(request, "pick") != null) {
-			for (String part : param(request, "pick").split(",")) {
-				if (toInt(part, 0) > 0) {
-					requested.add(toInt(part, 0));
-				}
-			}
+			requested = positiveInts(param(request, "pick").split(","));
 		}
 
 		/* 지금 살 수 있는 낱개만 고른 목록에 넣고, 내 조합에서 빠진 것은 이름을 알려 준다 */
@@ -118,7 +114,7 @@ public class CustomServlet extends BaseServlet {
 			}
 		}
 		days = Math.min(Math.max(days, 1), maxDays);
-		String pickParam = joinIds(pickedIds);
+		int totalPrice = packPrice * days;
 
 		request.setAttribute("tabs", tabs);
 		request.setAttribute("tabProducts", tabProducts);
@@ -126,14 +122,14 @@ public class CustomServlet extends BaseServlet {
 		request.setAttribute("conflicts", ConflictDAO.all());
 		request.setAttribute("picked", picked);
 		request.setAttribute("pickedIds", pickedIds);
-		request.setAttribute("pickParam", pickParam);
+		request.setAttribute("pickParam", joinIds(pickedIds));
 		request.setAttribute("unavailable", String.join(", ", unavailable));
 		request.setAttribute("days", days);
 		request.setAttribute("quickDays", ConfigDAO.quickDays());
 		request.setAttribute("maxDays", maxDays);
 		request.setAttribute("packPrice", packPrice);
-		request.setAttribute("totalPrice", packPrice * days);
-		request.setAttribute("deliveryFee", ConfigDAO.deliveryFee(packPrice * days));
+		request.setAttribute("totalPrice", totalPrice);
+		request.setAttribute("deliveryFee", ConfigDAO.deliveryFee(totalPrice));
 		request.setAttribute("deliveryFeeBase", ConfigDAO.baseDeliveryFee());
 		request.setAttribute("freeShippingMin", ConfigDAO.freeShippingMin());
 		request.setAttribute("warnings", ConflictDAO.warnings(pickedIds));
@@ -149,7 +145,8 @@ public class CustomServlet extends BaseServlet {
 	protected void post(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException, SQLException {
 		int memberId = loginId(request);
-		if (request.getServletPath().equals("/mypage/combo/delete")) {
+		String path = request.getServletPath();
+		if (path.equals("/mypage/combo/delete")) {
 			if (CartDAO.deleteCombo(intParam(request, "comboId", 0), memberId) == 0) {
 				flashError(request, "조합을 찾을 수 없습니다.");
 			} else {
@@ -158,7 +155,7 @@ public class CustomServlet extends BaseServlet {
 			redirect(request, response, "/mypage/combo");
 			return;
 		}
-		if (!request.getServletPath().equals("/mypage/combo/save")) {
+		if (!path.equals("/mypage/combo/save")) {
 			redirect(request, response, "/mypage/combo");
 			return;
 		}
@@ -179,7 +176,8 @@ public class CustomServlet extends BaseServlet {
 			}
 			Map<Integer, Product> products = ProductDAO.byIds(unique);
 			for (Integer id : unique) {
-				if (products.get(id) == null || products.get(id).isTrack()) {
+				Product p = products.get(id);
+				if (p == null || p.isTrack()) {
 					throw new Fail("조합에는 낱개 영양제만 저장할 수 있습니다.");
 				}
 			}
@@ -193,8 +191,7 @@ public class CustomServlet extends BaseServlet {
 			redirect(request, response, "/custom?combo=" + comboId + "&saved=1");
 		} catch (Fail e) {
 			flashError(request, e.getMessage());
-			String pick = joinIds(ids);
-			redirect(request, response, "/custom?pick=" + pick + "&days=" + days);
+			redirect(request, response, "/custom?pick=" + joinIds(ids) + "&days=" + days);
 		}
 	}
 }

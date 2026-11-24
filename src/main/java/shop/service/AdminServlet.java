@@ -35,8 +35,9 @@ public class AdminServlet extends BaseServlet {
 			request.setAttribute("pageData", OrderDAO.adminPage(keyword, param(request, "deliveryStatus"),
 					param(request, "orderStatus"), page));
 			request.setAttribute("flow", OrderDAO.FLOW);
-			if (intParam(request, "orderId", 0) > 0) {
-				request.setAttribute("detail", OrderDAO.detail(intParam(request, "orderId", 0), 0));
+			int orderId = intParam(request, "orderId", 0);
+			if (orderId > 0) {
+				request.setAttribute("detail", OrderDAO.detail(orderId, 0));
 			}
 			render(request, response, "admin/orders", "주문 · 배송 관리");
 			break;
@@ -46,8 +47,9 @@ public class AdminServlet extends BaseServlet {
 			break;
 		case "/admin/notices":
 			request.setAttribute("pageData", BoardDAO.notices(keyword, page));
-			if (intParam(request, "editId", 0) > 0) {
-				request.setAttribute("editNotice", BoardDAO.notice(intParam(request, "editId", 0)));
+			int editId = intParam(request, "editId", 0);
+			if (editId > 0) {
+				request.setAttribute("editNotice", BoardDAO.notice(editId));
 			}
 			render(request, response, "admin/notices", "공지 관리");
 			break;
@@ -98,36 +100,10 @@ public class AdminServlet extends BaseServlet {
 				notice(request, adminId);
 				break;
 			case "/admin/qna":
-				String answer = param(request, "answer");
-				if (isEmpty(answer)) {
-					throw new Fail("답변 내용을 입력하세요.");
-				}
-				if (answer.length() > 1000) {
-					throw new Fail("답변은 1000자 이내로 입력하세요.");
-				}
-				int qnaId = intParam(request, "qnaId", 0);
-				DB.begin();
-				try {
-					if (BoardDAO.answer(qnaId, answer) == 0) {
-						throw new Fail("문의를 찾을 수 없습니다.");
-					}
-					AdminDAO.adminLog(adminId, "QNA_ANSWER", "qna", qnaId, "답변 등록");
-					DB.commit();
-				} finally {
-					DB.end();
-				}
-				flash(request, "답변을 등록했습니다.");
+				answerQna(request, adminId);
 				break;
 			case "/admin/reviews":
-				int reviewId = intParam(request, "reviewId", 0);
-				Review review = BoardDAO.review(reviewId);
-				if (review == null) {
-					throw new Fail("리뷰를 찾을 수 없습니다.");
-				}
-				BoardDAO.deleteReview(reviewId, 0);
-				AdminDAO.adminLog(adminId, "REVIEW_DELETE", "review", reviewId,
-						"삭제: " + review.getProductName() + " / 작성자 " + review.getMemberName());
-				flash(request, "리뷰를 삭제했습니다.");
+				deleteReview(request, adminId);
 				break;
 			}
 		} catch (Fail e) {
@@ -208,6 +184,7 @@ public class AdminServlet extends BaseServlet {
 	private void notice(HttpServletRequest request, int adminId) throws SQLException {
 		int noticeId = intParam(request, "noticeId", 0);
 		String title = param(request, "title");
+		String content = param(request, "content");
 		if ("delete".equals(param(request, "mode"))) {
 			BoardDAO.deleteNotice(noticeId);
 			AdminDAO.adminLog(adminId, "NOTICE_DELETE", "notice", noticeId, "삭제");
@@ -217,10 +194,10 @@ public class AdminServlet extends BaseServlet {
 		if (isEmpty(title) || title.length() > 200) {
 			throw new Fail("제목을 200자 이내로 입력하세요.");
 		}
-		if (isEmpty(param(request, "content"))) {
+		if (isEmpty(content)) {
 			throw new Fail("내용을 입력하세요.");
 		}
-		if (BoardDAO.saveNotice(noticeId, title, param(request, "content")) == 0) {
+		if (BoardDAO.saveNotice(noticeId, title, content) == 0) {
 			throw new Fail("공지를 찾을 수 없습니다.");
 		}
 		if (noticeId > 0) {
@@ -230,5 +207,39 @@ public class AdminServlet extends BaseServlet {
 			AdminDAO.adminLog(adminId, "NOTICE_CREATE", "notice", null, "등록: " + title);
 			flash(request, "공지를 등록했습니다.");
 		}
+	}
+
+	private void answerQna(HttpServletRequest request, int adminId) throws SQLException {
+		String answer = param(request, "answer");
+		if (isEmpty(answer)) {
+			throw new Fail("답변 내용을 입력하세요.");
+		}
+		if (answer.length() > 1000) {
+			throw new Fail("답변은 1000자 이내로 입력하세요.");
+		}
+		int qnaId = intParam(request, "qnaId", 0);
+		DB.begin();
+		try {
+			if (BoardDAO.answer(qnaId, answer) == 0) {
+				throw new Fail("문의를 찾을 수 없습니다.");
+			}
+			AdminDAO.adminLog(adminId, "QNA_ANSWER", "qna", qnaId, "답변 등록");
+			DB.commit();
+		} finally {
+			DB.end();
+		}
+		flash(request, "답변을 등록했습니다.");
+	}
+
+	private void deleteReview(HttpServletRequest request, int adminId) throws SQLException {
+		int reviewId = intParam(request, "reviewId", 0);
+		Review review = BoardDAO.review(reviewId);
+		if (review == null) {
+			throw new Fail("리뷰를 찾을 수 없습니다.");
+		}
+		BoardDAO.deleteReview(reviewId, 0);
+		AdminDAO.adminLog(adminId, "REVIEW_DELETE", "review", reviewId,
+				"삭제: " + review.getProductName() + " / 작성자 " + review.getMemberName());
+		flash(request, "리뷰를 삭제했습니다.");
 	}
 }

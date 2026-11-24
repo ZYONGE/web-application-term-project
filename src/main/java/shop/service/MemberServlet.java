@@ -47,9 +47,10 @@ public class MemberServlet extends BaseServlet {
 	@Override
 	protected void post(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException, SQLException {
-		if (request.getServletPath().equals("/member/join")) {
+		String path = request.getServletPath();
+		if (path.equals("/member/join")) {
 			join(request, response);
-		} else if (request.getServletPath().equals("/member/login")) {
+		} else if (path.equals("/member/login")) {
 			login(request, response);
 		} else {
 			redirect(request, response, "/");
@@ -59,6 +60,10 @@ public class MemberServlet extends BaseServlet {
 	private void join(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException, SQLException {
 		String loginId = param(request, "loginId");
+		String password = request.getParameter("password");
+		String name = param(request, "name");
+		String email = param(request, "email");
+		String phone = param(request, "phone");
 		try {
 			if (isEmpty(loginId)) {
 				throw new Fail("아이디를 입력하세요.");
@@ -69,16 +74,15 @@ public class MemberServlet extends BaseServlet {
 			if (!loginId.matches("[A-Za-z0-9_]+")) {
 				throw new Fail("아이디는 영문 · 숫자 · 밑줄만 쓸 수 있습니다.");
 			}
-			checkPassword(request.getParameter("password"), request.getParameter("passwordConfirm"));
-			checkProfile(param(request, "name"), param(request, "email"), param(request, "phone"));
+			checkPassword(password, request.getParameter("passwordConfirm"));
+			checkProfile(name, email, phone);
 			if (MemberDAO.exists("login_id", loginId, 0)) {
 				throw new Fail("이미 사용 중인 아이디입니다.");
 			}
-			if (MemberDAO.exists("email", param(request, "email"), 0)) {
+			if (MemberDAO.exists("email", email, 0)) {
 				throw new Fail("이미 가입된 이메일입니다.");
 			}
-			MemberDAO.insert(loginId, request.getParameter("password"), param(request, "name"),
-					param(request, "email"), param(request, "phone"));
+			MemberDAO.insert(loginId, password, name, email, phone);
 			flash(request, "회원가입이 완료되었습니다. 로그인해 주세요.");
 			redirect(request, response, "/member/login?loginId=" + URLEncoder.encode(loginId, "UTF-8"));
 		} catch (Fail e) {

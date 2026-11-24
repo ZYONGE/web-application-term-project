@@ -38,6 +38,7 @@ public class CartServlet extends BaseServlet {
 		}
 		List<Item> items = CartDAO.cart(loginId(request), true);
 		int total = sumOrderable(items);
+		int fee = ConfigDAO.deliveryFee(total);
 		int blocked = 0;
 		Set<Integer> days = new LinkedHashSet<Integer>();
 		for (Item item : items) {
@@ -49,8 +50,8 @@ public class CartServlet extends BaseServlet {
 		}
 		request.setAttribute("items", items);
 		request.setAttribute("totalPrice", total);
-		request.setAttribute("deliveryFee", ConfigDAO.deliveryFee(total));
-		request.setAttribute("payAmount", total + ConfigDAO.deliveryFee(total));
+		request.setAttribute("deliveryFee", fee);
+		request.setAttribute("payAmount", total + fee);
 		request.setAttribute("blockedCount", blocked);
 		request.setAttribute("freeShippingMin", ConfigDAO.freeShippingMin());
 		request.setAttribute("maxDays", ConfigDAO.maxDays());

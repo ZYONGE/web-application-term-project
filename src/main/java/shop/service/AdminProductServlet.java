@@ -129,16 +129,9 @@ public class AdminProductServlet extends BaseServlet {
 		int price = toInt(form.getParameter("price"), 0);
 		int stock = toInt(form.getParameter("stock"), 0);
 		String status = trim(form.getParameter("status"));
-		String thumbnail = form.getFilesystemName("thumbnail") != null
-				? "/upload/" + form.getFilesystemName("thumbnail") : trim(form.getParameter("currentThumbnail"));
-		List<Integer> itemIds = new ArrayList<Integer>();
-		if (form.getParameterValues("itemId") != null) {
-			for (String v : form.getParameterValues("itemId")) {
-				if (toInt(v, 0) > 0) {
-					itemIds.add(toInt(v, 0));
-				}
-			}
-		}
+		String uploaded = form.getFilesystemName("thumbnail");
+		String thumbnail = uploaded != null ? "/upload/" + uploaded : trim(form.getParameter("currentThumbnail"));
+		List<Integer> itemIds = positiveInts(form.getParameterValues("itemId"));
 		boolean track = "TRACK".equals(type);
 
 		checkProduct(productId, categoryId, type, name, price, stock, status);
@@ -314,10 +307,10 @@ public class AdminProductServlet extends BaseServlet {
 			}
 		}
 		Conflict before = ConflictDAO.byId(conflictId);
+		int x = intParam(request, "productA", 0);
+		int y = intParam(request, "productB", 0);
 		String names = null;
 		if (mode.equals("create")) {
-			int x = intParam(request, "productA", 0);
-			int y = intParam(request, "productB", 0);
 			if (x <= 0 || y <= 0 || x == y) {
 				throw new Fail("서로 다른 낱개 영양제 두 개를 고르세요.");
 			}
@@ -339,23 +332,26 @@ public class AdminProductServlet extends BaseServlet {
 		} else {
 			names = before.getProductAName() + " × " + before.getProductBName();
 		}
+		String done;
 		DB.begin();
 		try {
 			if (mode.equals("create")) {
-				conflictId = ConflictDAO.insert(intParam(request, "productA", 0), intParam(request, "productB", 0), message);
+				conflictId = ConflictDAO.insert(x, y, message);
 				AdminDAO.adminLog(adminId, "CONFLICT_CREATE", "supplement_conflict", conflictId, names);
+				done = "금지 조합을 등록했습니다.";
 			} else if (mode.equals("update")) {
 				ConflictDAO.updateMessage(conflictId, message);
 				AdminDAO.adminLog(adminId, "CONFLICT_UPDATE", "supplement_conflict", conflictId, names + " 문구 수정");
+				done = "경고 문구를 수정했습니다.";
 			} else {
 				ConflictDAO.delete(conflictId);
 				AdminDAO.adminLog(adminId, "CONFLICT_DELETE", "supplement_conflict", conflictId, "삭제: " + names);
+				done = "금지 조합을 삭제했습니다.";
 			}
 			DB.commit();
 		} finally {
 			DB.end();
 		}
-		flash(request, mode.equals("create") ? "금지 조합을 등록했습니다."
-				: mode.equals("update") ? "경고 문구를 수정했습니다." : "금지 조합을 삭제했습니다.");
+		flash(request, done);
 	}
 }

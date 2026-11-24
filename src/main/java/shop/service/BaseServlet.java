@@ -87,7 +87,7 @@ public abstract class BaseServlet extends HttpServlet {
 	private boolean allowed(HttpServletRequest request, HttpServletResponse response)
 			throws IOException, SQLException {
 		String path = request.getServletPath();
-		String role = loginMember(request) == null ? null : loginMember(request).getRole();
+		String role = loginRole(request);
 		boolean admin = "ADMIN".equals(role);
 		boolean open = path.startsWith("/admin/") || path.equals("/maintenance")
 				|| path.equals("/member/login") || path.equals("/member/logout");
@@ -149,9 +149,8 @@ public abstract class BaseServlet extends HttpServlet {
 		request.setAttribute("pageTitle", title);
 		request.setAttribute("navCategories", navCategories());
 		request.setAttribute("maintenance", ConfigDAO.isMaintenance());
-		Member member = loginMember(request);
-		if (member != null && "USER".equals(member.getRole())) {
-			request.setAttribute("cartCount", CartDAO.countCart(member.getMemberId()));
+		if ("USER".equals(loginRole(request))) {
+			request.setAttribute("cartCount", CartDAO.countCart(loginId(request)));
 		}
 		request.getRequestDispatcher("/" + view + ".jsp").forward(request, response);
 	}
@@ -206,6 +205,12 @@ public abstract class BaseServlet extends HttpServlet {
 		return member == null ? 0 : member.getMemberId();
 	}
 
+	/* 로그인한 회원의 역할 (USER · ADMIN, 로그인 전이면 null) */
+	String loginRole(HttpServletRequest request) {
+		Member member = loginMember(request);
+		return member == null ? null : member.getRole();
+	}
+
 	/* 앞뒤 공백을 뗀 파라미터 (없으면 null) */
 	protected String param(HttpServletRequest request, String name) {
 		String value = request.getParameter(name);
@@ -224,12 +229,17 @@ public abstract class BaseServlet extends HttpServlet {
 
 	/* 같은 이름으로 여러 개 온 숫자 (0 이하 · 숫자 아님은 버린다) */
 	protected List<Integer> intParams(HttpServletRequest request, String name) {
+		return positiveInts(request.getParameterValues(name));
+	}
+
+	/* 문자열 배열 중 1 이상인 숫자만 (null 이면 빈 목록) */
+	static List<Integer> positiveInts(String[] values) {
 		List<Integer> list = new ArrayList<Integer>();
-		String[] values = request.getParameterValues(name);
 		if (values != null) {
 			for (String v : values) {
-				if (toInt(v, 0) > 0) {
-					list.add(toInt(v, 0));
+				int n = toInt(v, 0);
+				if (n > 0) {
+					list.add(n);
 				}
 			}
 		}
