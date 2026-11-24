@@ -21,3 +21,4 @@
 |:---:|:---:|---|---|
 | 11-24 | 김지용 | `DECISIONS.md` | 수정: 결정 이력 문서 형식 정리, 표 프레임 구성 |
 | 11-24 | 김지용 | `AGENTS.md` | 추가: AI AGENT 작업규칙 명세 (Git 작업 규칙 · 소스코드 작성 규칙) |
+| 11-24 | 김지용 | `WebContents/images/product/*.png` (49)<br>`sql/data.sql` | 수정: 시드 상품 이미지를 images/product 로 이동하고 트랙 대표 이미지 지정, upload/ 는 관리자 업로드 전용 |
