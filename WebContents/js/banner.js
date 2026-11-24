@@ -59,8 +59,10 @@
 				return;
 			}
 			var max = maxIndex();
-			if (wrap) {
-				i = i > max ? 0 : i < 0 ? max : i;
+			if (wrap && i > max) {
+				i = 0;
+			} else if (wrap && i < 0) {
+				i = max;
 			}
 			i = Math.min(max, Math.max(0, i));
 			track.scrollTo({ left: i * step(), behavior: "smooth" });
@@ -85,9 +87,6 @@
 			stop();
 			if (!paused && !hovering && !drag && !document.hidden) {
 				timer = setInterval(function () {
-					if (!ready()) {
-						return;
-					}
 					go(current() + 1, true);
 				}, DELAY);
 			}

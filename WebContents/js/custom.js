@@ -25,20 +25,19 @@
 	/* ---------------- 1. 섭취 일수 ---------------- */
 
 	function refreshDays(input) {
-		var value = String(toInt(input.value));
+		var days = toInt(input.value);
 		var buttons = document.querySelectorAll('[data-days-target="' + input.id + '"]');
 		for (var i = 0; i < buttons.length; i++) {
-			buttons[i].classList.toggle("on", buttons[i].getAttribute("data-days-value") === value);
+			buttons[i].classList.toggle("on", buttons[i].getAttribute("data-days-value") === String(days));
 		}
 		var totals = document.querySelectorAll('[data-days-total="' + input.id + '"]');
-		var max = toInt(input.getAttribute("max")) || 0;
+		var max = toInt(input.getAttribute("max"));
+		/* 담을 수 없는 일수(0 이하 · 상한 초과)는 합계를 내지 않고 범위를 알린다 */
+		var ok = days >= 1 && (max === 0 || days <= max);
 		for (var j = 0; j < totals.length; j++) {
-			var days = toInt(input.value);
 			var price = toInt(totals[j].getAttribute("data-price"));
 			var count = totals[j].querySelector("[data-days-count]");
 			var sum = totals[j].querySelector("[data-days-sum]");
-			/* 담을 수 없는 일수(0 이하 · 상한 초과)는 합계를 내지 않고 범위를 알린다 */
-			var ok = days >= 1 && (max === 0 || days <= max);
 			if (count) { count.textContent = days; }
 			if (sum) { sum.textContent = ok ? fmt(price * days) : "— (1~" + max + "일로 입력)"; }
 		}
@@ -151,7 +150,10 @@
 
 		/* 합계 · 배송비 미리보기 — 서버 ConfigDAO.deliveryFee 와 같은 식 */
 		var total = pack * days;
-		var fee = total <= 0 ? 0 : (total >= freeMin ? 0 : baseFee);
+		var fee = 0;
+		if (total > 0 && total < freeMin) {
+			fee = baseFee;
+		}
 		document.getElementById("sumPack").textContent = fmt(pack);
 		document.getElementById("sumDays").textContent = days;
 		document.getElementById("sumPacks").textContent = days;
@@ -177,16 +179,16 @@
 		document.getElementById("customWarnOk").hidden = !(hits === 0 && picked.length > 0);
 
 		/* 조합 상태를 URL 에 둔다 — 새로고침 · 링크 공유 (IMPACT K3) */
-		var query = "pick=" + idList.join(",") + "&days=" + days;
+		var url = ctx + "/custom?pick=" + idList.join(",") + "&days=" + days;
 		var share = document.getElementById("customShare");
-		share.href = ctx + "/custom?" + query;
-		share.textContent = ctx + "/custom?" + query;
+		share.href = url;
+		share.textContent = url;
 		var login = document.getElementById("customLogin");
 		if (login) {
-			login.href = ctx + "/member/login?returnUrl=" + encodeURIComponent(ctx + "/custom?" + query);
+			login.href = ctx + "/member/login?returnUrl=" + encodeURIComponent(url);
 		}
 		if (window.history && window.history.replaceState) {
-			window.history.replaceState(null, "", ctx + "/custom?" + query);
+			window.history.replaceState(null, "", url);
 		}
 	}
 
