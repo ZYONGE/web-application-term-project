@@ -8,7 +8,6 @@
       cp WebContents/META-INF/context.xml.example WebContents/META-INF/context.xml
 
   스키마는 shopdb 로 고정한다.
-    - sandbox(webapplication_sandbox)와 데이터를 공유하지 않는다. 실험이 main 의 DB를 건드릴 수 없도록 분리한 것이다.
     - 수업 실습 DB(web)도 쓰지 않는다. 실습 테이블과 섞이지 않는다.
     - 생성 스크립트는 sql/00_create_database.sql (관리자 계정으로 1회 실행, 이미 적용됨)
 -->

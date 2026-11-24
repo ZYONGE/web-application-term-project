@@ -40,11 +40,9 @@
 
 | 브랜치 | 폴더 | 용도 |
 |---|---|---|
-| `main` | `웹프로그래밍응용_기말프로젝트` | 제출 산출물 |
-| `sandbox` | `웹프로그래밍응용_기말프로젝트_Sandbox` (형제 폴더) | 실험. origin에 올라가 있다 |
+| `main` | `웹프로그래밍응용_기말프로젝트` | 제출 산출물 · 유일한 작업 브랜치 |
 
-- 위 두 브랜치 외에는 브랜치 · worktree를 만들지 않는다. 각 폴더는 자기 브랜치만 체크아웃하고 자기 브랜치만 푸시한다.
-- 샌드박스 결과는 `main` 에 **병합하지 않는다.** PM이 판단으로 정리해 `main` 에서 다시 구현한다.
+- `main` 외에는 브랜치 · worktree를 만들지 않는다. `sandbox` 브랜치는 11-24 에 삭제했다.
 - LLM API 키는 `META-INF/context.xml` 의 `<Environment>` 에만 둔다 (git 제외). 소스 · 커밋 · 문서에 키를 쓰지 않는다.
 - 커밋 전 `git status` 로 확인하고, 자기 파일만 경로로 지정해 스테이징한다. `git add -A` · `git add .` 은 쓰지 않는다. 한 커밋에는 한 트랙만 담는다.
 - `git reset --hard` · `git checkout -- .` · 강제 푸시는 금지한다. 같은 폴더의 다른 세션 작업이 사라진다.
@@ -53,6 +51,6 @@
 
 ## 5. 현재 상태
 
-- `main`: 골격과 규약만 있다. ERD · 스키마 · JSP · CSS는 비어 있다.
-- `sandbox`: 4개 트랙 모두 여기서 작업 중이다. 샌드박스의 `docs/ERD.md` 는 실험용 ERD다.
-- 트랙별 진행과 PM 결정 대기 항목은 `docs/STATUS.md` 에 있다.
+- `main`: 쇼핑몰 전체(JSP · Servlet · DB · LLM)가 구현돼 있고, 4개 트랙 모두 여기서 작업한다. 역할은 `USER` · `ADMIN` 두 가지다.
+- 로컬 DB 는 `shopdb` 하나다. `sql/` 을 schema → data → llm_summary → llm_test_data → review_data → product_detail 순서로 적용한다.
+- 작업 규칙은 `AGENTS.md`, 커밋 이력은 `DECISIONS.md` 에 있다.
