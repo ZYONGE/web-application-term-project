@@ -15,37 +15,39 @@
       <tr><th>재고</th><td>${product.stock}포</td></tr>
       <tr><th>별점</th><td><fmt:formatNumber value="${product.avgRating}" pattern="0.0" /> / 5 (리뷰 ${product.reviewCount}건)</td></tr>
     </table>
-    <c:if test="${not empty me and me.role != 'USER'}">
-      <p class="field_help">구매는 일반 회원 계정으로만 가능합니다.</p>
-    </c:if>
-    <c:if test="${empty me or me.role == 'USER'}">
-      <%-- 섭취 일수 고르기 — 빠른 선택 버튼을 누르면 custom.js 가 입력칸과 합계를 바꾼다 --%>
-      <form class="prod_buy" action="${ctx}/cart/add" method="post" data-validate>
-        <input type="hidden" name="productId" value="${product.productId}">
-        <input type="hidden" name="back" value="/product/view?productId=${product.productId}">
-        <div class="prod_days">
-          <span class="prod_days_label">섭취 일수</span>
-          <c:forEach var="d" items="${quickDays}">
-            <button type="button" class="btn btn_small ${d == dayInit ? 'on' : ''}" data-days-value="${d}" data-days-target="quantity">${d}일</button>
-          </c:forEach>
-          <label for="quantity">직접 입력</label>
-          <input type="number" id="quantity" name="quantity" value="${dayInit}" min="1" max="${dayLimit}" data-rule="intakeDays" data-max="${dayLimit}">일
-        </div>
-        <p class="prod_days_total" data-days-total="quantity" data-price="${product.price}">
-          1포 <fmt:formatNumber value="${product.price}" pattern="#,##0" />원 × <span data-days-count>${dayInit}</span>일
-          = <strong data-days-sum><fmt:formatNumber value="${product.price * dayInit}" pattern="#,##0" /></strong>원
-        </p>
-        <div class="prod_actions">
-          <button type="submit" class="btn btn_primary">장바구니 담기</button>
-          <button type="submit" class="btn btn_sub" form="prodWishForm">${wished ? '찜 해제' : '찜하기'}</button>
-        </div>
-        <span class="field_help">같은 상품을 다시 담으면 일수를 새 값으로 바꿉니다.</span>
-      </form>
-      <form class="prod_wish" id="prodWishForm" action="${ctx}/wish/toggle" method="post">
-        <input type="hidden" name="productId" value="${product.productId}">
-        <input type="hidden" name="back" value="/product/view?productId=${product.productId}">
-      </form>
-    </c:if>
+    <c:choose>
+      <c:when test="${not empty me and me.role != 'USER'}">
+        <p class="field_help">구매는 일반 회원 계정으로만 가능합니다.</p>
+      </c:when>
+      <c:otherwise>
+        <%-- 섭취 일수 고르기 — 빠른 선택 버튼을 누르면 custom.js 가 입력칸과 합계를 바꾼다 --%>
+        <form class="prod_buy" action="${ctx}/cart/add" method="post" data-validate>
+          <input type="hidden" name="productId" value="${product.productId}">
+          <input type="hidden" name="back" value="/product/view?productId=${product.productId}">
+          <div class="prod_days">
+            <span class="prod_days_label">섭취 일수</span>
+            <c:forEach var="d" items="${quickDays}">
+              <button type="button" class="btn btn_small ${d == dayInit ? 'on' : ''}" data-days-value="${d}" data-days-target="quantity">${d}일</button>
+            </c:forEach>
+            <label for="quantity">직접 입력</label>
+            <input type="number" id="quantity" name="quantity" value="${dayInit}" min="1" max="${dayLimit}" data-rule="intakeDays" data-max="${dayLimit}">일
+          </div>
+          <p class="prod_days_total" data-days-total="quantity" data-price="${product.price}">
+            1포 <fmt:formatNumber value="${product.price}" pattern="#,##0" />원 × <span data-days-count>${dayInit}</span>일
+            = <strong data-days-sum><fmt:formatNumber value="${product.price * dayInit}" pattern="#,##0" /></strong>원
+          </p>
+          <div class="prod_actions">
+            <button type="submit" class="btn btn_primary">장바구니 담기</button>
+            <button type="submit" class="btn btn_sub" form="prodWishForm">${wished ? '찜 해제' : '찜하기'}</button>
+          </div>
+          <span class="field_help">같은 상품을 다시 담으면 일수를 새 값으로 바꿉니다.</span>
+        </form>
+        <form class="prod_wish" id="prodWishForm" action="${ctx}/wish/toggle" method="post">
+          <input type="hidden" name="productId" value="${product.productId}">
+          <input type="hidden" name="back" value="/product/view?productId=${product.productId}">
+        </form>
+      </c:otherwise>
+    </c:choose>
     <c:if test="${not empty conflicts}">
       <section class="warnbox">
         <h3 class="warnbox_title">${product.track ? '이 트랙과 함께 드시지 마세요' : '이 영양제와 함께 드시지 마세요'}</h3>

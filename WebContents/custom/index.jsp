@@ -42,20 +42,20 @@
 					</thead>
 					<tbody>
 						<c:forEach var="p" items="${tabProducts[t.categoryId]}">
-								<tr>
-									<td class="col_check">
-										<input type="checkbox" name="productId" value="${p.productId}" id="pick${p.productId}"
-										       data-name="<c:out value='${p.name}' />" data-price="${p.price}" data-stock="${p.stock}"
-										       ${pickedIds.contains(p.productId) ? 'checked' : ''}>
-									</td>
-									<td class="col_name">
-										<label for="pick${p.productId}"><c:out value="${p.name}" /></label>
-										<a class="custom_more" href="${ctx}/product/view?productId=${p.productId}">상세</a>
-									</td>
-									<td class="col_price"><fmt:formatNumber value="${p.price}" pattern="#,##0" />원</td>
-									<td class="col_rating"><fmt:formatNumber value="${p.avgRating}" pattern="0.0" /> (${p.reviewCount})</td>
-									<td class="col_state">${p.stock}포</td>
-								</tr>
+							<tr>
+								<td class="col_check">
+									<input type="checkbox" name="productId" value="${p.productId}" id="pick${p.productId}"
+									       data-name="<c:out value='${p.name}' />" data-price="${p.price}" data-stock="${p.stock}"
+									       ${pickedIds.contains(p.productId) ? 'checked' : ''}>
+								</td>
+								<td class="col_name">
+									<label for="pick${p.productId}"><c:out value="${p.name}" /></label>
+									<a class="custom_more" href="${ctx}/product/view?productId=${p.productId}">상세</a>
+								</td>
+								<td class="col_price"><fmt:formatNumber value="${p.price}" pattern="#,##0" />원</td>
+								<td class="col_rating"><fmt:formatNumber value="${p.avgRating}" pattern="0.0" /> (${p.reviewCount})</td>
+								<td class="col_state">${p.stock}포</td>
+							</tr>
 						</c:forEach>
 					</tbody>
 				</table>
@@ -138,7 +138,7 @@
 		</section>
 		<p class="warnbox_ok" id="customWarnOk" ${empty warnings and not empty picked ? '' : 'hidden'}>함께 먹기를 권하지 않는 조합이 없습니다.</p>
 		<c:choose>
-			<c:when test="${sessionScope.loginMember.role == 'USER'}">
+			<c:when test="${me.role == 'USER'}">
 				<div class="custom_actions">
 					<button type="submit" class="btn btn_primary" id="customAdd">장바구니에 담기</button>
 				</div>
@@ -151,7 +151,7 @@
 					<span class="field_help">같은 이름이 있으면 덮어쓸지 묻습니다.</span>
 				</div>
 			</c:when>
-			<c:when test="${empty sessionScope.loginMember}">
+			<c:when test="${empty me}">
 				<c:url var="loginUrl" value="/member/login">
 					<c:param name="returnUrl" value="${ctx}/custom?pick=${pickParam}&days=${days}" />
 				</c:url>
@@ -170,7 +170,7 @@
 		</p>
 	</aside>
 </form>
-<c:if test="${sessionScope.loginMember.role == 'USER'}">
+<c:if test="${me.role == 'USER'}">
 	<section class="custom_mycombo">
 		<h3>내 조합 불러오기</h3>
 		<ul>

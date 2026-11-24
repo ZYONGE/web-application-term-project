@@ -9,16 +9,19 @@
 	<tr>
 		<th>주소</th>
 		<td>
-			<c:if test="${not empty mainAddr}">
+			<c:choose>
+				<c:when test="${not empty mainAddr}">
 					[<c:out value="${mainAddr.zipcode}" />] <c:out value="${mainAddr.addr1}" /> <c:out value="${mainAddr.addr2}" />
 					<span class="field_help">
 						<c:out value="${mainAddr.addrName}" /><c:if test="${mainAddr.isDefault == 'Y'}"> (기본 배송지)</c:if>
 						· 받는 사람 <c:out value="${mainAddr.receiver}" />
 						· 등록된 배송지 ${addressCount}곳 <a href="${ctx}/mypage/address">관리</a>
 					</span>
-			</c:if>
-			<c:if test="${empty mainAddr}">
-					등록된 주소가 없습니다. <a href="${ctx}/mypage/address">배송지 등록</a></c:if>
+				</c:when>
+				<c:otherwise>
+					등록된 주소가 없습니다. <a href="${ctx}/mypage/address">배송지 등록</a>
+				</c:otherwise>
+			</c:choose>
 		</td>
 	</tr>
 	<tr><th>가입일</th><td><fmt:formatDate value="${member.createdAt}" pattern="yyyy-MM-dd" /></td></tr>

@@ -50,7 +50,7 @@
 						<c:if test="${o.cancelable}">
 							<form action="${ctx}/admin/orders" method="post">
 								<input type="hidden" name="returnQuery" value="<c:out value='${pageContext.request.queryString}' />">
-									<input type="hidden" name="mode" value="cancel">
+								<input type="hidden" name="mode" value="cancel">
 								<input type="hidden" name="orderId" value="${o.orderId}">
 								<button type="submit" class="btn btn_danger btn_small"
 								        data-confirm-message="주문을 취소하시겠습니까? 재고가 복구됩니다.">취소</button>
@@ -102,7 +102,7 @@
 <dialog id="shipPopup" class="popup">
 	<form class="popup_form" action="${ctx}/admin/orders" method="post" data-validate>
 		<input type="hidden" name="returnQuery" value="<c:out value='${pageContext.request.queryString}' />">
-									<input type="hidden" name="mode" value="next">
+		<input type="hidden" name="mode" value="next">
 		<input type="hidden" name="deliveryId" id="shipDeliveryId">
 		<h3 class="popup_head">배송중으로 — 운송장 입력</h3>
 		<div class="popup_body">
