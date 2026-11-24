@@ -45,7 +45,8 @@
 }
 
 .cart_sum th {
-	width: 140px;
+	width: 160px;
+	background-color: var(--color-primary-light);
 }
 
 .cart_sum td {
@@ -76,14 +77,6 @@
 }
 
 /*===== 필살기 브랜드 적용 (2026-11-22) =====*/
-
-/*장바구니 페이지 제목 — 틸 밑줄*/
-.cart_table { margin-bottom: var(--space-lg); }
-
-.cart_sum th {
-	width: 160px;
-	background-color: var(--color-primary-light);
-}
 
 /*결제 예정 금액 행 — 볼트옐로우 하이라이트 대신 틸 강조 (옐로우 위 흰 글자 금지 규칙 유지)*/
 .cart_sum tr:last-child td {

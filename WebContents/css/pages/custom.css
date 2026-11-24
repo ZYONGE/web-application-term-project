@@ -95,12 +95,11 @@
 
 .custom_picked li {
 	display: flex;
+	flex-wrap: wrap;
 	align-items: center;
 	padding-top: var(--space-xs);
 	padding-bottom: var(--space-xs);
-	border-bottom-width: 1px;
-	border-bottom-style: solid;
-	border-bottom-color: var(--color-border);
+	border-bottom: 1px solid var(--color-border);
 }
 
 .custom_picked_name {
@@ -112,10 +111,6 @@
 	flex-basis: 100%;
 	font-size: var(--font-size-small);
 	color: var(--color-danger);
-}
-
-.custom_picked li {
-	flex-wrap: wrap;
 }
 
 .custom_picked_price {

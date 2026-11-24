@@ -267,10 +267,8 @@
 	border-radius: 50%;
 }
 
-/*성분표 · 리뷰 · 문의 공통 섹션 제목*/
-.prod_ingre,
-.prod_review,
-.prod_qna { margin-bottom: var(--space-xl); }
+/*성분표 · 리뷰 · 문의 공통 섹션 제목 (리뷰 · 문의 섹션의 아래 여백은 위 "아래 영역" 에 있다)*/
+.prod_ingre { margin-bottom: var(--space-xl); }
 
 .prod_ingre h3,
 .prod_review h3,

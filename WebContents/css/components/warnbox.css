@@ -44,9 +44,7 @@
 .warnbox_list li {
 	margin-bottom: var(--space-sm);
 	padding-bottom: var(--space-sm);
-	border-bottom-width: 1px;
-	border-bottom-style: dashed;
-	border-bottom-color: var(--color-border);
+	border-bottom: 1px dashed var(--color-border);
 }
 
 .warnbox_list li:last-child {

@@ -13,7 +13,6 @@
 
 .order_form h3 {
 	margin-top: var(--space-xl);
-	margin-bottom: var(--space-sm);
 }
 
 .order_form h3:first-child {
@@ -37,10 +36,11 @@
 	max-width: 480px;
 }
 
-/*결제수단 — 라디오를 버튼처럼 나란히*/
+/*결제수단 — 라디오를 버튼처럼 한 줄로 나란히*/
 .order_method {
 	display: flex;
-	gap: var(--space-sm);
+	gap: var(--space-lg);
+	padding: var(--space-sm) 0px;
 }
 
 .order_method label {
@@ -61,11 +61,12 @@
 	box-shadow: inset 0px 0px 0px 1px var(--color-primary);
 }
 
-/*배송 상태 이력 — 세로 시간선*/
+/*배송 상태 이력 — 세로 시간선. 현재(마지막) 단계는 볼트옐로우 점*/
 .order_timeline {
 	margin-top: var(--space-sm);
 	margin-bottom: var(--space-lg);
-	padding-left: var(--space-lg);
+	padding-left: 0px;
+	list-style: none;
 	border-left: 2px solid var(--color-border-strong);
 }
 
@@ -73,18 +74,29 @@
 	position: relative;
 	padding-top: var(--space-xs);
 	padding-bottom: var(--space-sm);
+	padding-left: 20px;
 	font-size: var(--font-size-small);
+	color: var(--color-text-weak);
 }
 
 .order_timeline li::before {
 	content: "";
 	position: absolute;
-	top: 10px;
-	left: calc(var(--space-lg) * -1 - 6px);
-	width: 10px;
-	height: 10px;
-	background-color: var(--color-primary);
+	top: 0.45em;
+	left: 0px;
+	width: 8px;
+	height: 8px;
+	background-color: var(--color-border-strong);
 	border-radius: 50%;
+}
+
+.order_timeline li:last-child {
+	color: var(--color-text);
+	font-weight: bold;
+}
+
+.order_timeline li:last-child::before {
+	background-color: var(--color-accent);
 }
 
 /*===== 필살기 브랜드 적용 (2026-11-22) =====*/
@@ -143,44 +155,4 @@
 	font-size: var(--font-size-base);
 	border-bottom: 2px solid var(--color-primary);
 	padding-bottom: var(--space-sm);
-}
-
-/*결제수단 라디오 — 한 줄 나열*/
-.order_method {
-	display: flex;
-	gap: var(--space-lg);
-	padding: var(--space-sm) 0px;
-}
-
-/*배송 상태 이력 — 세로 타임라인, 현재(마지막) 단계 볼트옐로우 점*/
-.order_timeline {
-	padding-left: 0px;
-	list-style: none;
-}
-
-.order_timeline li {
-	position: relative;
-	padding-left: 20px;
-	padding-bottom: var(--space-sm);
-	color: var(--color-text-weak);
-}
-
-.order_timeline li::before {
-	content: "";
-	position: absolute;
-	left: 0px;
-	top: 0.45em;
-	width: 8px;
-	height: 8px;
-	background-color: var(--color-border-strong);
-	border-radius: 50%;
-}
-
-.order_timeline li:last-child {
-	color: var(--color-text);
-	font-weight: bold;
-}
-
-.order_timeline li:last-child::before {
-	background-color: var(--color-accent);
 }
