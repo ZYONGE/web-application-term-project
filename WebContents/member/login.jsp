@@ -21,6 +21,6 @@
 	</div>
 </form>
 <p class="field_help">
-	테스트 계정: admin / devops / hong / kim (비밀번호는 모두 test1234)
+	테스트 계정: admin / hong / kim (비밀번호는 모두 test1234)
 </p>
 <%@ include file="../common/footer.jsp" %>

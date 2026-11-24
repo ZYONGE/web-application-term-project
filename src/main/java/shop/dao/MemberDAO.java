@@ -54,7 +54,7 @@ public class MemberDAO {
 			args.add(like);
 			args.add(like);
 		}
-		if ("USER".equals(role) || "ADMIN".equals(role) || "DEV".equals(role)) {
+		if ("USER".equals(role) || "ADMIN".equals(role)) {
 			where.append(" AND role = ?");
 			args.add(role);
 		}

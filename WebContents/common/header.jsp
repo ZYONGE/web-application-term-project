@@ -51,16 +51,9 @@
         <li><a href="${ctx}/cart/list">장바구니<c:if test="${cartCount > 0}"> (${cartCount})</c:if></a></li>
       </c:if>
       <c:if test="${me.role == 'ADMIN'}"><li><a href="${ctx}/admin/dashboard">관리자</a></li></c:if>
-      <c:if test="${me.role == 'DEV'}"><li><a href="${ctx}/dev/">dev</a></li></c:if>
       <li><a href="${ctx}/member/logout">로그아웃</a></li>
     </c:if>
   </ul>
-  <c:if test="${not empty sessionScope.impersonatorId}">
-    <p class="page_header_notice">
-      [dev] 개발자 계정(#${sessionScope.impersonatorId})이 <c:out value="${me.loginId}" /> 계정으로 전환 중입니다.
-      <a href="${ctx}/dev/loginAs/return">원래 계정으로</a>
-    </p>
-  </c:if>
   <c:if test="${maintenance}">
     <p class="page_header_notice">[점검 모드] 일반 사용자에게는 점검 안내가 보입니다.</p>
   </c:if>

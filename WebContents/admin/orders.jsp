@@ -94,7 +94,6 @@
 		<li>
 			<fmt:formatDate value="${h.changedAt}" pattern="yyyy-MM-dd HH:mm" />
 			<c:out value="${empty h.prevStatus ? '(최초)' : h.prevStatus}" /> &rarr; <c:out value="${h.newStatus}" />
-			<c:if test="${h.isForced == 'Y'}"> [강제]</c:if>
 			<c:if test="${not empty h.changedByName}"> / <c:out value="${h.changedByName}" /></c:if>
 		</li>
 	</c:forEach>

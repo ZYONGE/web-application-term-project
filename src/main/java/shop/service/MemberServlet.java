@@ -110,8 +110,7 @@ public class MemberServlet extends BaseServlet {
 			String ctx = request.getContextPath();
 			String role = member.getRole();
 			boolean safe = returnUrl != null && returnUrl.startsWith(ctx + "/");
-			if (safe && ("USER".equals(role)
-					|| returnUrl.startsWith(ctx + ("ADMIN".equals(role) ? "/admin/" : "/dev/")))) {
+			if (safe && ("USER".equals(role) || returnUrl.startsWith(ctx + "/admin/"))) {
 				response.sendRedirect(returnUrl);
 			} else {
 				redirect(request, response, homeOf(role));

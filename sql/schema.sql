@@ -69,8 +69,8 @@ CREATE TABLE member (
     name       VARCHAR(30)  NOT NULL,
     email      VARCHAR(100) NOT NULL,
     phone      VARCHAR(20)  NOT NULL,
-    role       ENUM('USER', 'ADMIN', 'DEV') NOT NULL DEFAULT 'USER',
-    status     ENUM('ACTIVE', 'LEFT')       NOT NULL DEFAULT 'ACTIVE',
+    role       ENUM('USER', 'ADMIN')  NOT NULL DEFAULT 'USER',
+    status     ENUM('ACTIVE', 'LEFT') NOT NULL DEFAULT 'ACTIVE',
     created_at DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (member_id),
     UNIQUE KEY uk_member_login_id (login_id),
@@ -204,8 +204,8 @@ CREATE TABLE notice (
 -- =============================================================
 -- 5. system_config — 전역 설정                         ERD § 2.16
 -- =============================================================
---   배송비·무료배송 기준·점검 모드를 DB에 둔다. /dev/state.jsp 에서
---   실시간으로 바꿔 시연해야 하므로 코드 상수로 두지 않는다.
+--   배송비·무료배송 기준·점검 모드를 DB에 둔다. 코드를 고치지 않고
+--   값만 바꿔 시연할 수 있도록 코드 상수로 두지 않는다.
 --   ON UPDATE CURRENT_TIMESTAMP 는 MySQL 고유 기능 — Oracle 이면 트리거가 필요했다.
 CREATE TABLE system_config (
     config_key   VARCHAR(50)  NOT NULL,
@@ -433,7 +433,6 @@ CREATE TABLE payment (
 -- 13. delivery — 배송                                  ERD § 2.11
 -- =============================================================
 --   주문과 1:1. 상태는 결제완료 → 상품준비 → 배송중 → 배송완료 로만 전이한다.
---   단 /dev 는 이 규칙을 무시할 수 있다 (ERD § 6.4).
 --   tracking_no 는 임의 입력값이다 — 외부 조회는 하지 않는다.
 CREATE TABLE delivery (
     delivery_id  INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -451,8 +450,7 @@ CREATE TABLE delivery (
     CONSTRAINT fk_delivery_order FOREIGN KEY (order_id)
         REFERENCES orders (order_id) ON DELETE CASCADE ON UPDATE RESTRICT,
     -- ERD § 9.4-5 — 운송장 없이 배송중/배송완료 로 넘어간 행을 막는다.
-    --   /dev 강제 변경과 충돌하지 않는다. § 6.4 가 시각·운송장을 함께 맞추도록 규정하므로,
-    --   이 CHECK 는 그 규칙을 빠뜨린 코드를 즉시 드러내는 장치가 된다.
+    --   이 CHECK 는 배송중으로 넘길 때 운송장을 함께 저장하는 규칙을 빠뜨린 코드를 즉시 드러낸다.
     CONSTRAINT chk_delivery_tracking CHECK (
         status IN ('결제완료', '상품준비')
      OR (courier IS NOT NULL AND tracking_no IS NOT NULL))
@@ -463,7 +461,6 @@ CREATE TABLE delivery (
 -- 14. delivery_history — 배송 상태 이력                 ERD § 2.12
 -- =============================================================
 --   상태가 바뀔 때마다 한 줄씩. 마이페이지 배송 타임라인의 유일한 근거다.
---   is_forced = 'Y' 면 /dev 가 강제로 바꾼 줄이다.
 --   changed_by 가 NULL 허용이라 ON DELETE SET NULL 이 성립한다.
 CREATE TABLE delivery_history (
     history_id  INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -471,7 +468,6 @@ CREATE TABLE delivery_history (
     prev_status ENUM('결제완료', '상품준비', '배송중', '배송완료') NULL,
     new_status  ENUM('결제완료', '상품준비', '배송중', '배송완료') NOT NULL,
     changed_by  INT UNSIGNED NULL,
-    is_forced   ENUM('Y', 'N') NOT NULL DEFAULT 'N',
     changed_at  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (history_id),
     KEY idx_delivery_history_timeline (delivery_id, changed_at),
@@ -552,7 +548,7 @@ CREATE TABLE qna (
 
 
 -- =============================================================
--- 17. admin_log — 관리자·dev 조작 기록                 ERD § 2.17
+-- 17. admin_log — 관리자 조작 기록                     ERD § 2.17
 -- =============================================================
 --   delivery_history 와 목적이 다르다 — 저쪽은 "배송이 어떻게 흘렀나",
 --   이쪽은 "누가 무엇을 건드렸나".
@@ -560,7 +556,6 @@ CREATE TABLE qna (
 CREATE TABLE admin_log (
     log_id       INT UNSIGNED NOT NULL AUTO_INCREMENT,
     member_id    INT UNSIGNED NOT NULL,
-    mode         ENUM('ADMIN', 'DEV') NOT NULL,
     action       VARCHAR(50)  NOT NULL,
     target_table VARCHAR(30)  NULL,
     target_id    INT UNSIGNED NULL,
@@ -625,7 +620,7 @@ GROUP  BY d.status;
 
 -- 3.3 v_admin_order — 관리자 주문 목록 -------------------------------
 --   payment · delivery 는 주문과 같은 트랜잭션에서 생기므로 실제로는 항상 있다.
---   그래도 LEFT JOIN 인 이유는 /dev 가 데이터를 강제로 비틀 수 있기 때문이다 —
+--   그래도 LEFT JOIN 인 이유는 데이터가 어긋난 경우를 대비하기 위해서다 —
 --   반쪽 주문이 생겨도 관리자 화면이 그 행을 감추지 않고 보여줘야 이상을 알아챈다.
 --   목록 제목은 first_product_name + (item_count - 1) 로 "데일리 기본 트랙 외 2건" 형태를 만든다.
 CREATE OR REPLACE VIEW v_admin_order AS
@@ -676,7 +671,7 @@ FROM   member m;
 
 -- 3.5 v_low_stock — 재고 부족 상품 -----------------------------------
 --   기준값을 하드코딩하지 않고 system_config.LOW_STOCK_THRESHOLD 에서 읽는다.
---   /dev 에서 조절해 시연할 수 있어야 하므로.
+--   코드를 고치지 않고 값만 바꿔 시연할 수 있어야 하므로.
 --
 --   ★ 이 뷰는 선택 기능이 아니다. § 2.4 노출 규칙에 따라 stock = 0 인 상품은
 --     사용자 화면에서 조용히 사라지므로, 관리자가 그 사실을 알 수 있는 유일한 경로다.

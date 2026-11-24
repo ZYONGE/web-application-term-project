@@ -3,11 +3,10 @@ package shop.dao;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /*
   운영 설정 (system_config) — 배송비 · 무료배송 기준 · 섭취 일수 상한 · 점검 모드.
-  /dev 에서 바꾼 값이 다음 요청에 바로 보이도록 캐시하지 않는다.
+  DB 에서 바꾼 값이 다음 요청에 바로 보이도록 캐시하지 않는다.
 */
 public class ConfigDAO {
 
@@ -63,11 +62,4 @@ public class ConfigDAO {
 		return list;
 	}
 
-	public static List<Map<String, Object>> all() throws SQLException {
-		return DB.maps("SELECT * FROM system_config ORDER BY config_key");
-	}
-
-	public static int update(String key, String value) throws SQLException {
-		return DB.update("UPDATE system_config SET config_value = ? WHERE config_key = ?", value, key);
-	}
 }

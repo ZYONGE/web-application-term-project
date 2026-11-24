@@ -8,7 +8,6 @@
 		<option value="">전체 권한</option>
 		<option value="USER" ${param.role == 'USER' ? 'selected' : ''}>회원</option>
 		<option value="ADMIN" ${param.role == 'ADMIN' ? 'selected' : ''}>관리자</option>
-		<option value="DEV" ${param.role == 'DEV' ? 'selected' : ''}>개발자</option>
 	</select>
 	<button type="submit" class="btn">검색</button>
 </form>

@@ -208,10 +208,6 @@ public class ProductDAO {
 		DB.update("UPDATE product SET stock = stock + ? WHERE product_id = ?", quantity, productId);
 	}
 
-	public static void setStock(int productId, int stock) throws SQLException {
-		DB.update("UPDATE product SET stock = ? WHERE product_id = ?", stock, productId);
-	}
-
 	/* 추가 이미지 — 순서는 지금 마지막 + 1 */
 	public static void addImage(int productId, String path) throws SQLException {
 		int next = DB.number("SELECT IFNULL(MAX(sort_order), 0) + 1 FROM product_image WHERE product_id = ?", productId);

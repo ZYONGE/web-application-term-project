@@ -15,7 +15,7 @@
 --   ★ 지켜야 하는 것 (ERD § 4.4 · § 8)
 --     1. category 는 대분류(parent_id IS NULL)를 먼저 넣는다 — 자기 참조 FK
 --     2. system_config 초기 5건이 없으면 배송비 계산 · 점검 판정 · 일수 상한이 동작하지 않는다
---     3. ADMIN · DEV 계정은 이 스크립트로만 만들어진다 (가입은 항상 USER)
+--     3. ADMIN 계정은 이 스크립트로만 만들어진다 (가입은 항상 USER)
 --     4. qna 의 answer 와 answered_at 은 항상 함께 채우거나 함께 NULL
 --     5. track_item 의 트랙은 TRACK, 구성은 SINGLE. supplement_conflict · combo_item 은 SINGLE 만
 --     6. supplement_conflict 는 product_a < product_b. 트랙 구성품끼리는 금지 조합이 없다
@@ -75,11 +75,10 @@ ALTER TABLE member              AUTO_INCREMENT = 1;
 
 
 -- 1. member ---------------------------------------------------------
---   role = 'ADMIN' · 'DEV' 는 여기서만 만들어진다. 가입은 항상 USER 이고 역할은 바뀌지 않는다.
+--   role = 'ADMIN' 은 여기서만 만들어진다. 가입은 항상 USER 이고 역할은 바뀌지 않는다.
 --   status = 'LEFT' 는 소프트 삭제 — 주문이 FK 로 묶여 물리 삭제가 안 된다.
 INSERT INTO member (member_id, login_id, password, name, email, phone, role, status, created_at) VALUES
     (1, 'admin',  'test1234', '관리자',   'admin@example.com',  '010-0000-0001', 'ADMIN', 'ACTIVE',    '2026-09-01 10:00:00'),
-    (2, 'devops', 'test1234', '개발자',   'dev@example.com',    '010-0000-0002', 'DEV',   'ACTIVE',    '2026-09-01 10:05:00'),
     (3, 'hong',   'test1234', '홍길동',   'hong@example.com',   '010-0000-0003', 'USER',  'ACTIVE',    '2026-09-10 14:20:00'),
     (4, 'kim',    'test1234', '김영희',   'kim@example.com',    '010-0000-0004', 'USER',  'ACTIVE',    '2026-09-15 09:30:00'),
     (5, 'leaver', 'test1234', '탈퇴회원', 'leaver@example.com', '010-0000-0005', 'USER',  'LEFT',      '2026-09-20 16:45:00');
@@ -353,17 +352,16 @@ INSERT INTO delivery (delivery_id, order_id, status, courier, tracking_no,
 -- 14. delivery_history ----------------------------------------------
 --   상태가 바뀔 때마다 한 줄. 마이페이지 배송 타임라인의 유일한 근거다.
 --   최초 생성은 prev_status 가 NULL 이고 changed_by 도 NULL 이다 (시스템 자동).
---   is_forced = 'Y' 는 /dev 가 강제로 바꾼 줄이다 — 2번 주문에 한 건 있다.
-INSERT INTO delivery_history (history_id, delivery_id, prev_status, new_status, changed_by, is_forced, changed_at) VALUES
-    (1, 1, NULL,       '결제완료', NULL, 'N', '2026-10-20 14:03:10'),
-    (2, 1, '결제완료', '상품준비', 1,    'N', '2026-10-21 10:00:00'),
-    (3, 1, '상품준비', '배송중',   1,    'N', '2026-10-22 08:30:00'),
-    (4, 1, '배송중',   '배송완료', 1,    'N', '2026-10-23 15:20:00'),
-    (5, 2, NULL,       '결제완료', NULL, 'N', '2026-10-26 09:41:08'),
-    (6, 2, '결제완료', '상품준비', 1,    'N', '2026-10-27 10:00:00'),
-    (7, 2, '상품준비', '배송중',   2,    'Y', '2026-10-28 08:10:00'),
-    (8, 3, NULL,       '결제완료', NULL, 'N', '2026-10-28 18:12:05'),
-    (9, 4, NULL,       '결제완료', NULL, 'N', '2026-10-28 21:05:12');
+INSERT INTO delivery_history (history_id, delivery_id, prev_status, new_status, changed_by, changed_at) VALUES
+    (1, 1, NULL,       '결제완료', NULL, '2026-10-20 14:03:10'),
+    (2, 1, '결제완료', '상품준비', 1,    '2026-10-21 10:00:00'),
+    (3, 1, '상품준비', '배송중',   1,    '2026-10-22 08:30:00'),
+    (4, 1, '배송중',   '배송완료', 1,    '2026-10-23 15:20:00'),
+    (5, 2, NULL,       '결제완료', NULL, '2026-10-26 09:41:08'),
+    (6, 2, '결제완료', '상품준비', 1,    '2026-10-27 10:00:00'),
+    (7, 2, '상품준비', '배송중',   1,    '2026-10-28 08:10:00'),
+    (8, 3, NULL,       '결제완료', NULL, '2026-10-28 18:12:05'),
+    (9, 4, NULL,       '결제완료', NULL, '2026-10-28 21:05:12');
 
 
 -- 15. review --------------------------------------------------------
@@ -387,16 +385,15 @@ INSERT INTO qna (qna_id, member_id, product_id, question, is_secret, answer, cre
 -- 17. admin_log -----------------------------------------------------
 --   delivery_history 와 목적이 다르다 — 저쪽은 "배송이 어떻게 흘렀나",
 --   이쪽은 "누가 무엇을 건드렸나". action 어휘는 ERD § 3 admin_log 고정 목록을 쓴다.
---   ★ 역할 격리(ERD § 8-8): mode 는 member 의 role 과 같아야 하고 USER 는 기록하지 않는다.
+--   ★ 역할 격리(ERD § 8-8): 관리자(ADMIN)의 조작만 기록하고 USER 는 기록하지 않는다.
 --     고객 본인 취소 · 조합 저장은 admin_log 에 남지 않는다. 9번은 관리자가 취소한 건이다.
-INSERT INTO admin_log (log_id, member_id, mode, action, target_table, target_id, detail, created_at) VALUES
-    ( 1, 1, 'ADMIN', 'PRODUCT_CREATE',        'product',             30,   '가르시니아 캄보지아 등록',                                    '2026-09-12 11:00:00'),
-    ( 2, 1, 'ADMIN', 'TRACK_ITEM_SET',        'track_item',          39,   '구성 (없음) -> 종합비타민, 오메가3 1000mg, 비타민D3 1000IU, 마그네슘 300mg, 프로바이오틱스 100억 CFU, 비타민C 1000mg', '2026-09-15 11:05:00'),
-    ( 3, 1, 'ADMIN', 'CONFLICT_CREATE',       'supplement_conflict',  1,   '종합비타민 × 비타민A 5000IU',                                 '2026-09-16 10:00:00'),
-    ( 4, 1, 'ADMIN', 'QNA_ANSWER',            'qna',                  1,   '공복 섭취 문의 답변',                                         '2026-10-21 15:30:00'),
-    ( 5, 1, 'ADMIN', 'DELIVERY_TRACKING_SET', 'delivery',             1,   '운송장 1234567890 (샌드박스택배)',                            '2026-10-22 08:30:00'),
-    ( 6, 1, 'ADMIN', 'DELIVERY_NEXT_STEP',    'delivery',             1,   '배송중 -> 배송완료',                                          '2026-10-23 15:20:00'),
-    ( 7, 1, 'ADMIN', 'PRODUCT_UPDATE',        'product',             39,   '판매가 1800 -> 1950',                                         '2026-10-25 10:00:00'),
-    ( 8, 2, 'DEV',   'FORCE_DELIVERY_STATUS', 'delivery',             2,   '상품준비 -> 배송중 (강제)',                                   '2026-10-28 08:10:00'),
-    ( 9, 1, 'ADMIN', 'ORDER_CANCEL',          'orders',               3,   '관리자 취소 처리, 환불 완료',                                 '2026-10-28 19:30:00'),
-    (10, 2, 'DEV',   'SHOP_STATUS_TOGGLE',    'system_config',     NULL,   'MAINTENANCE -> OPEN',                                         '2026-10-28 22:00:00');
+INSERT INTO admin_log (log_id, member_id, action, target_table, target_id, detail, created_at) VALUES
+    ( 1, 1, 'PRODUCT_CREATE',        'product',             30,   '가르시니아 캄보지아 등록',                                    '2026-09-12 11:00:00'),
+    ( 2, 1, 'TRACK_ITEM_SET',        'track_item',          39,   '구성 (없음) -> 종합비타민, 오메가3 1000mg, 비타민D3 1000IU, 마그네슘 300mg, 프로바이오틱스 100억 CFU, 비타민C 1000mg', '2026-09-15 11:05:00'),
+    ( 3, 1, 'CONFLICT_CREATE',       'supplement_conflict',  1,   '종합비타민 × 비타민A 5000IU',                                 '2026-09-16 10:00:00'),
+    ( 4, 1, 'QNA_ANSWER',            'qna',                  1,   '공복 섭취 문의 답변',                                         '2026-10-21 15:30:00'),
+    ( 5, 1, 'DELIVERY_TRACKING_SET', 'delivery',             1,   '운송장 1234567890 (샌드박스택배)',                            '2026-10-22 08:30:00'),
+    ( 6, 1, 'DELIVERY_NEXT_STEP',    'delivery',             1,   '배송중 -> 배송완료',                                          '2026-10-23 15:20:00'),
+    ( 7, 1, 'PRODUCT_UPDATE',        'product',             39,   '판매가 1800 -> 1950',                                         '2026-10-25 10:00:00'),
+    ( 8, 1, 'DELIVERY_TRACKING_SET', 'delivery',             2,   '운송장 9876543210 (샌드박스택배)',                            '2026-10-28 08:10:00'),
+    ( 9, 1, 'ORDER_CANCEL',          'orders',               3,   '관리자 취소 처리, 환불 완료',                                 '2026-10-28 19:30:00');

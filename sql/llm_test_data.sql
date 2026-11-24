@@ -108,14 +108,14 @@ INSERT INTO delivery (delivery_id, order_id, status, courier, tracking_no, paid_
 -- 배송 이력 — 모든 배송에 이력이 있어야 주문상세 타임라인이 그려진다 (data.sql 과 같은 모양).
 --   첫 줄(→ 결제완료)은 시스템(changed_by NULL), 이후 단계는 관리자(1). 시각은 위 delivery 의 단계별 시각.
 --   재실행 시 위 0. 정리에서 orders 삭제 → delivery · delivery_history 가 CASCADE 로 함께 지워진다.
-INSERT INTO delivery_history (delivery_id, prev_status, new_status, changed_by, is_forced, changed_at)
-SELECT delivery_id, NULL,       '결제완료', NULL, 'N', paid_at AS changed_at FROM delivery WHERE delivery_id BETWEEN 101 AND 199
+INSERT INTO delivery_history (delivery_id, prev_status, new_status, changed_by, changed_at)
+SELECT delivery_id, NULL,       '결제완료', NULL, paid_at AS changed_at FROM delivery WHERE delivery_id BETWEEN 101 AND 199
 UNION ALL
-SELECT delivery_id, '결제완료', '상품준비', 1,    'N', ready_at     FROM delivery WHERE delivery_id BETWEEN 101 AND 199
+SELECT delivery_id, '결제완료', '상품준비', 1,    ready_at     FROM delivery WHERE delivery_id BETWEEN 101 AND 199
 UNION ALL
-SELECT delivery_id, '상품준비', '배송중',   1,    'N', shipped_at   FROM delivery WHERE delivery_id BETWEEN 101 AND 199
+SELECT delivery_id, '상품준비', '배송중',   1,    shipped_at   FROM delivery WHERE delivery_id BETWEEN 101 AND 199
 UNION ALL
-SELECT delivery_id, '배송중',   '배송완료', 1,    'N', delivered_at FROM delivery WHERE delivery_id BETWEEN 101 AND 199
+SELECT delivery_id, '배송중',   '배송완료', 1,    delivered_at FROM delivery WHERE delivery_id BETWEEN 101 AND 199
 ORDER BY delivery_id, changed_at;
 
 

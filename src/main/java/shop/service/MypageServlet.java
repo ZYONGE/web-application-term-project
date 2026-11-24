@@ -111,9 +111,6 @@ public class MypageServlet extends BaseServlet {
 				if (!me.getPassword().equals(request.getParameter("password"))) {
 					throw new Fail("비밀번호가 올바르지 않습니다.");
 				}
-				if ("DEV".equals(me.getRole())) {
-					throw new Fail("DEV 계정은 탈퇴할 수 없습니다.");
-				}
 				MemberDAO.leave(memberId, false);
 				request.getSession().invalidate();
 				go = "/";

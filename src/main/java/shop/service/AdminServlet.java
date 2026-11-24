@@ -171,7 +171,7 @@ public class AdminServlet extends BaseServlet {
 			if (OrderDAO.moveNext(deliveryId, from, to, courier, trackingNo) == 0) {
 				throw new Fail("배송 상태가 이미 바뀌었습니다. 새로고침 후 다시 시도하세요.");
 			}
-			OrderDAO.addHistory(deliveryId, from, to, adminId, false);
+			OrderDAO.addHistory(deliveryId, from, to, adminId);
 			AdminDAO.adminLog(adminId, "DELIVERY_NEXT_STEP", "delivery", deliveryId, from + " -> " + to);
 			if (shipping) {
 				AdminDAO.adminLog(adminId, "DELIVERY_TRACKING_SET", "delivery", deliveryId, courier + " / " + trackingNo);

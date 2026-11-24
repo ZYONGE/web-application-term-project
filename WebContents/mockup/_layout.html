@@ -7,12 +7,12 @@
   common/header.jsp + common/footer.jsp 가 내보낼 마크업의 제시안이다.
   CLAUDE.md § 4.1 — UI 트랙은 여기서 마크업을 제시하고, 이식은 JSP 트랙이 한다.
 
-  ★ 역할별 헤더 4종 (ERD § 5.2 — USER · ADMIN · DEV 완전 격리)
+  ★ 역할별 헤더 3종 (ERD § 5.2 — USER · ADMIN 완전 격리)
     현행 header.jsp 는 로그인하면 역할과 무관하게 전원에게 장바구니 · 마이페이지를
-    노출한다. 아래 3 · 4 번처럼 ADMIN · DEV 에서는 빼야 한다.
+    노출한다. 아래 3 번처럼 ADMIN 에서는 빼야 한다.
 
     공개 탐색(메인 · 목록 · 상세 · 공지)은 누구나 열람 가능하므로
-    page_nav 와 page_search 는 네 변형 모두 동일하다.
+    page_nav 와 page_search 는 세 변형 모두 동일하다.
 
   CSS 로드 순서는 header.jsp 와 같다 (CLAUDE.md § 3 Stage 1).
 -->
@@ -34,7 +34,7 @@
      1. 비로그인 — 로그인 · 회원가입만
      ============================================================ -->
 <div class="wrap">
-<p class="field_help">[변형 1 / 4] 비로그인</p>
+<p class="field_help">[변형 1 / 3] 비로그인</p>
 
 <header class="page_header">
 	<h1><a href="#">필살기</a></h1>
@@ -73,7 +73,7 @@
      2. USER — 구매 동선 전체. 장바구니 수량 배지 포함
      ============================================================ -->
 <div class="wrap">
-<p class="field_help">[변형 2 / 4] USER — 일반 회원</p>
+<p class="field_help">[변형 2 / 3] USER — 일반 회원</p>
 
 <header class="page_header">
 	<h1><a href="#">필살기</a></h1>
@@ -114,7 +114,7 @@
      3. ADMIN — 관리 메뉴만. 장바구니 · 마이페이지 없음
      ============================================================ -->
 <div class="wrap">
-<p class="field_help">[변형 3 / 4] ADMIN — 장바구니 · 마이페이지를 넣지 않는다</p>
+<p class="field_help">[변형 3 / 3] ADMIN — 장바구니 · 마이페이지를 넣지 않는다</p>
 
 <header class="page_header">
 	<h1><a href="#">필살기</a></h1>
@@ -124,51 +124,6 @@
 		<li><a href="#">관리자</a></li>
 		<li><a href="#">로그아웃</a></li>
 	</ul>
-
-	<nav class="page_nav">
-		<ul>
-			<li><a href="#">전체 영양제</a></li>
-			<li>
-				<a href="#">낱개 영양제</a>
-				<ul>
-					<li><a href="#">비타민</a></li>
-					<li><a href="#">미네랄</a></li>
-					<li><a href="#">기능성 원료</a></li>
-				</ul>
-			</li>
-			<li><a href="#">트랙 패키지</a></li>
-			<li><a href="#">공지사항</a></li>
-			<li class="page_nav_custom"><a href="#">조합 맞추기</a></li>
-		</ul>
-	</nav>
-
-	<form class="page_search" action="#" method="get">
-		<label for="k3">상품검색</label>
-		<input type="text" id="k3" name="keyword" value="">
-		<button type="submit" class="btn">검색</button>
-	</form>
-</header>
-</div>
-
-<!-- ============================================================
-     4. DEV — dev 메뉴만. 계정 전환 중이면 그 사실을 숨기지 않는다
-     ============================================================ -->
-<div class="wrap">
-<p class="field_help">[변형 4 / 4] DEV — 장바구니 · 마이페이지를 넣지 않는다</p>
-
-<header class="page_header">
-	<h1><a href="#">필살기</a></h1>
-
-	<ul class="page_header_util">
-		<li>개발자님</li>
-		<li><a href="#">dev</a></li>
-		<li><a href="#">로그아웃</a></li>
-	</ul>
-
-	<p class="page_header_notice">
-		[dev] devops 계정으로 user01 에 전환 중입니다.
-		<a href="#">원래 계정으로</a>
-	</p>
 
 	<p class="page_header_notice">[점검 모드] 일반 사용자에게는 점검 안내가 보입니다.</p>
 
@@ -190,8 +145,8 @@
 	</nav>
 
 	<form class="page_search" action="#" method="get">
-		<label for="k4">상품검색</label>
-		<input type="text" id="k4" name="keyword" value="">
+		<label for="k3">상품검색</label>
+		<input type="text" id="k3" name="keyword" value="">
 		<button type="submit" class="btn">검색</button>
 	</form>
 </header>

@@ -129,7 +129,7 @@
 	text-decoration: underline;
 }
 
-/*dev 계정 전환 · 점검 모드 안내 — 헤더 폭 전체 띠*/
+/*점검 모드 안내 — 헤더 폭 전체 띠*/
 .page_header_notice {
 	grid-column: 1 / -1;
 	margin-top: var(--space-sm);

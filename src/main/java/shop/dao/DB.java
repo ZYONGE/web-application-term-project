@@ -165,26 +165,6 @@ public class DB {
 		return list;
 	}
 
-	/* 여러 행 → 글자 그대로의 Map 목록 (키는 소문자 컬럼 이름) — dev 데이터 브라우저 · 스키마 화면용 */
-	public static List<Map<String, String>> raw(String sql, Object... args) throws SQLException {
-		List<Map<String, String>> list = new ArrayList<Map<String, String>>();
-		Connection conn = connect();
-		try (PreparedStatement ps = prepare(conn, sql, args, false); ResultSet rs = ps.executeQuery()) {
-			ResultSetMetaData meta = rs.getMetaData();
-			while (rs.next()) {
-				Map<String, String> row = new LinkedHashMap<String, String>();
-				for (int i = 1; i <= meta.getColumnCount(); i++) {
-					Object value = rs.getObject(i);
-					row.put(meta.getColumnLabel(i).toLowerCase(), value == null ? null : String.valueOf(value));
-				}
-				list.add(row);
-			}
-		} finally {
-			release(conn);
-		}
-		return list;
-	}
-
 	/* 첫 행 첫 칸 — COUNT(*) 같은 숫자 하나 (없으면 0) */
 	public static int number(String sql, Object... args) throws SQLException {
 		String value = text(sql, args);

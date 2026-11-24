@@ -106,7 +106,7 @@ public class OrderDAO {
 	public static void insertPaymentAndDelivery(int orderId, String method, int amount) throws SQLException {
 		DB.update("INSERT INTO payment (order_id, method, amount, pay_status) VALUES (?, ?, ?, '완료')", orderId, method, amount);
 		int deliveryId = DB.insert("INSERT INTO delivery (order_id, status, paid_at) VALUES (?, '결제완료', NOW())", orderId);
-		addHistory(deliveryId, null, "결제완료", null, false);
+		addHistory(deliveryId, null, "결제완료", null);
 	}
 
 	/* ---------- 상태 바꾸기 ---------- */
@@ -142,25 +142,9 @@ public class OrderDAO {
 				to, deliveryId, from);
 	}
 
-	/* 강제 변경 (dev) — 그 단계까지의 시각은 채우고, 뒤 단계 시각은 비운다 */
-	public static int force(int deliveryId, String to, String courier, String trackingNo) throws SQLException {
-		int target = step(to);
-		StringBuilder sql = new StringBuilder("UPDATE delivery SET status = ?");
-		for (int i = 0; i < FLOW.length; i++) {
-			String c = TIME_COLUMN[i];
-			sql.append(", ").append(c).append(i <= target ? " = IFNULL(" + c + ", NOW())" : " = NULL");
-		}
-		if (target >= step("배송중")) {
-			sql.append(", courier = ?, tracking_no = ? WHERE delivery_id = ?");
-			return DB.update(sql.toString(), to, courier, trackingNo, deliveryId);
-		}
-		sql.append(", courier = NULL, tracking_no = NULL WHERE delivery_id = ?");
-		return DB.update(sql.toString(), to, deliveryId);
-	}
-
-	public static void addHistory(int deliveryId, String prev, String next, Integer changedBy, boolean forced)
-			throws SQLException {
-		DB.update("INSERT INTO delivery_history (delivery_id, prev_status, new_status, changed_by, is_forced)"
-				+ " VALUES (?, ?, ?, ?, ?)", deliveryId, prev, next, changedBy, forced ? "Y" : "N");
+	/* 배송 이력 한 줄 — changedBy 가 null 이면 시스템(결제 직후)이 바꾼 것 */
+	public static void addHistory(int deliveryId, String prev, String next, Integer changedBy) throws SQLException {
+		DB.update("INSERT INTO delivery_history (delivery_id, prev_status, new_status, changed_by)"
+				+ " VALUES (?, ?, ?, ?)", deliveryId, prev, next, changedBy);
 	}
 }

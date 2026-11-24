@@ -42,3 +42,4 @@
 | 11-24 | 김지용 | `AGENTS.md` | 추가: AI AGENT 작업규칙 명세 (Git 작업 규칙 · 소스코드 작성 규칙) |
 | 11-24 | 김지용 | `WebContents/images/product/*.png` (49)<br>`sql/data.sql` | 수정: 시드 상품 이미지를 images/product 로 이동하고 트랙 대표 이미지 지정, upload/ 는 관리자 업로드 전용 |
 | 11-24 | 김지용 | `DECISIONS.md` | 추가: main 브랜치의 이전 커밋 이력 19건을 결정 이력 표에 기록 |
+| 11-24 | 김지용 | `WebContents/dev/*.jsp` (삭제 7)<br>`WebContents/common/devnav.jsp` (삭제)<br>`src/main/java/shop/service/DevServlet.java` · `Erd.java` · `erd.mmd` (삭제)<br>`src/main/java/shop/dao/` (6) · `model/Member.java` · `service/` (4)<br>`WebContents/common/header.jsp` · `member/login.jsp` · `admin/` (2) · `css/` (2) · `mockup/` (2)<br>`sql/schema.sql` · `sql/data.sql` · `sql/llm_test_data.sql` | 삭제: DEV(개발자) 역할과 /dev 도구 전부 제거 — 사용자는 USER · ADMIN 만, admin_log.mode · delivery_history.is_forced 컬럼 제거 |

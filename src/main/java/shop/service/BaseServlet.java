@@ -13,7 +13,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import shop.dao.AdminDAO;
 import shop.dao.CartDAO;
 import shop.dao.CategoryDAO;
 import shop.dao.ConfigDAO;
@@ -25,10 +24,9 @@ import shop.model.Member;
   모든 서블릿의 부모 클래스.
 
   요청이 들어오면 먼저 입장 검사를 한다.
-    1. 점검 모드면 일반 사용자는 점검 안내로 (관리자 · 개발자 화면과 로그인은 열어 둔다)
+    1. 점검 모드면 일반 사용자는 점검 안내로 (관리자 화면과 로그인은 열어 둔다)
     2. /cart /order /mypage /wish  → 일반 회원(USER)만
        /admin                      → 관리자(ADMIN)만
-       /dev                        → 개발자(DEV)만
   검사를 통과하면 하위 서블릿의 get() / post() 가 실행된다.
   업무 규칙에 어긋나면 Fail 을 던지고, 받은 쪽에서 빨간 알림(flashError)으로 보여준다.
 */
@@ -68,9 +66,9 @@ public abstract class BaseServlet extends HttpServlet {
 		run(request, response, false);
 	}
 
+	/* 입장 검사를 통과하면 get() / post() 를 부른다 */
 	private void run(HttpServletRequest request, HttpServletResponse response, boolean isGet)
 			throws ServletException, IOException {
-		AdminDAO.IMPERSONATOR.set((Integer) request.getSession().getAttribute("impersonatorId"));
 		try {
 			if (!allowed(request, response)) {
 				return;
@@ -82,8 +80,6 @@ public abstract class BaseServlet extends HttpServlet {
 			}
 		} catch (SQLException e) {
 			throw new ServletException("DB 처리 중 오류가 발생했습니다.", e);
-		} finally {
-			AdminDAO.IMPERSONATOR.remove();
 		}
 	}
 
@@ -92,21 +88,16 @@ public abstract class BaseServlet extends HttpServlet {
 			throws IOException, SQLException {
 		String path = request.getServletPath();
 		String role = loginMember(request) == null ? null : loginMember(request).getRole();
-		boolean staff = "ADMIN".equals(role) || "DEV".equals(role);
-		boolean open = path.startsWith("/admin/") || path.startsWith("/dev/") || path.equals("/maintenance")
+		boolean admin = "ADMIN".equals(role);
+		boolean open = path.startsWith("/admin/") || path.equals("/maintenance")
 				|| path.equals("/member/login") || path.equals("/member/logout");
-		if (!open && !staff && ConfigDAO.isMaintenance()) {
+		if (!open && !admin && ConfigDAO.isMaintenance()) {
 			redirect(request, response, "/maintenance");
 			return false;
 		}
 		String need = path.startsWith("/admin") ? "ADMIN"
-				: path.startsWith("/dev") ? "DEV"
 				: path.matches("/(cart|order|mypage|wish)(/.*)?") ? "USER" : null;
 		if (need == null || need.equals(role)) {
-			return true;
-		}
-		/* 계정 전환 중에는 원래 계정으로 돌아가는 주소만 연다 */
-		if (path.equals("/dev/loginAs/return") && request.getSession().getAttribute("impersonatorId") != null) {
 			return true;
 		}
 		if (role == null) {
@@ -114,7 +105,7 @@ public abstract class BaseServlet extends HttpServlet {
 			redirect(request, response, "/member/login" + (back == null ? "" : "?returnUrl=" + URLEncoder.encode(back, "UTF-8")));
 		} else {
 			flashError(request, "USER".equals(need) ? "구매 · 마이페이지는 일반 회원 계정으로만 이용할 수 있습니다."
-					: "ADMIN".equals(need) ? "관리자 계정으로만 접근할 수 있습니다." : "개발자 계정으로만 접근할 수 있습니다.");
+					: "관리자 계정으로만 접근할 수 있습니다.");
 			redirect(request, response, homeOf(role));
 		}
 		return false;
@@ -147,7 +138,7 @@ public abstract class BaseServlet extends HttpServlet {
 
 	/* 역할별 첫 화면 */
 	public static String homeOf(String role) {
-		return "ADMIN".equals(role) ? "/admin/dashboard" : "DEV".equals(role) ? "/dev/" : "/";
+		return "ADMIN".equals(role) ? "/admin/dashboard" : "/";
 	}
 
 	/* ---------- 화면 · 이동 ---------- */
