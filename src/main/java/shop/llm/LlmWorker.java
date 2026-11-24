@@ -12,8 +12,6 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 
-
-
 /*
   AI 요약(F1 · F2)을 화면 밖에서 만드는 백그라운드 일꾼.
 
@@ -106,12 +104,13 @@ public class LlmWorker implements ServletContextListener {
 
 	public static void log(String message, Throwable e) {
 		ServletContext ctx = context;
-		if (ctx != null) {
-			if (e != null) {
-				ctx.log(message, e);
-			} else {
-				ctx.log(message);
-			}
+		if (ctx == null) {
+			return;
+		}
+		if (e != null) {
+			ctx.log(message, e);
+		} else {
+			ctx.log(message);
 		}
 	}
 }

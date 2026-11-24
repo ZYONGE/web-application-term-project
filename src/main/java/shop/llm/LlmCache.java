@@ -82,10 +82,7 @@ public final class LlmCache {
 			RELATED.put(key, ids);
 			mine.complete(ids);
 			return ids;
-		} catch (LlmException | RuntimeException e) {
-			mine.completeExceptionally(e);
-			throw e;
-		} catch (InterruptedException e) {
+		} catch (LlmException | InterruptedException | RuntimeException e) {
 			mine.completeExceptionally(e);
 			throw e;
 		} finally {

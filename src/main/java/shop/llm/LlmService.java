@@ -57,7 +57,7 @@ public class LlmService {
 
 		if (DescSummaryPrompt.needsSummary(product)) {
 			Map<String, Object> desc = saved.get(LlmDAO.DESC);
-			if (desc != null && DescSummaryPrompt.sourceKey(product).equals(desc.get("sourceKey"))) {
+			if (isCurrent(desc, DescSummaryPrompt.sourceKey(product))) {
 				view.put("desc", desc.get("content"));
 			} else {
 				stale = true;
@@ -77,7 +77,7 @@ public class LlmService {
 					view.put("review", content);
 				}
 			}
-			if (review == null || !ReviewSummaryPrompt.sourceKey(reviews).equals(review.get("sourceKey"))) {
+			if (!isCurrent(review, ReviewSummaryPrompt.sourceKey(reviews))) {
 				stale = true;
 			}
 		}
@@ -102,8 +102,7 @@ public class LlmService {
 		/* F1 상품 설명 */
 		if (DescSummaryPrompt.needsSummary(product)) {
 			String key = DescSummaryPrompt.sourceKey(product);
-			Map<String, Object> old = saved.get(LlmDAO.DESC);
-			if (old == null || !key.equals(old.get("sourceKey"))) {
+			if (!isCurrent(saved.get(LlmDAO.DESC), key)) {
 				try {
 					String answer = LlmCache.call(client, DescSummaryPrompt.build(product), false);
 					String text = DescSummaryPrompt.clean(answer);
@@ -122,8 +121,7 @@ public class LlmService {
 		List<Review> reviews = BoardDAO.productReviews(productId);
 		if (ReviewSummaryPrompt.needsSummary(reviews)) {
 			String key = ReviewSummaryPrompt.sourceKey(reviews);
-			Map<String, Object> old = saved.get(LlmDAO.REVIEW);
-			if (old == null || !key.equals(old.get("sourceKey"))) {
+			if (!isCurrent(saved.get(LlmDAO.REVIEW), key)) {
 				try {
 					String answer = LlmCache.call(client, ReviewSummaryPrompt.build(product.getName(), reviews), true);
 					String text = ReviewSummaryPrompt.clean(answer);
@@ -137,6 +135,11 @@ public class LlmService {
 		} else if (saved.containsKey(LlmDAO.REVIEW)) {
 			LlmDAO.delete(productId, LlmDAO.REVIEW);
 		}
+	}
+
+	/* 저장된 요약이 지금 원본(sourceKey)으로 만든 것인지 */
+	private static boolean isCurrent(Map<String, Object> saved, String sourceKey) {
+		return saved != null && sourceKey.equals(saved.get("sourceKey"));
 	}
 
 	/* 관리자 "AI 요약 전체 생성" — 판매중 상품 전부를 줄에 세운다. 새로 선 개수를 돌려준다 */
