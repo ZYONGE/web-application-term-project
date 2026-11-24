@@ -50,15 +50,15 @@ public class Product {
 		return sb.toString();
 	}
 
-	/*
-	  설명 앞부분 — AI 요약을 아직 못 만들었을 때(생성 전 · AI 서버 연결 안 됨) 대신 보여준다.
-	  앞에서부터 문장 단위로 150자 안쪽까지. 요약 대상(150자 초과)일 때만 쓰인다.
-	*/
 	/* AI 설명 요약 대상인가 — LLM 의 DescSummaryPrompt.SHORT_LIMIT(150자)와 같은 기준 */
 	public boolean isLongDesc() {
 		return description != null && description.trim().length() > 150;
 	}
 
+	/*
+	  설명 앞부분 — AI 요약을 아직 못 만들었을 때(생성 전 · AI 서버 연결 안 됨) 대신 보여준다.
+	  앞에서부터 문장 단위로 150자 안쪽까지. 요약 대상(150자 초과)일 때만 쓰인다.
+	*/
 	public String getDescPreview() {
 		String text = description == null ? "" : description.trim().replaceAll("\\s+", " ");
 		if (text.length() <= 150) {
@@ -109,8 +109,9 @@ public class Product {
 			return list;
 		}
 		for (String line : detailImages.split("\\r?\\n")) {
-			if (!line.trim().isEmpty()) {
-				list.add(line.trim());
+			String path = line.trim();
+			if (!path.isEmpty()) {
+				list.add(path);
 			}
 		}
 		return list;

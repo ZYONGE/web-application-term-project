@@ -58,8 +58,12 @@ public class Order {
 
 	/* "원포올 외 2건" — 관리자 목록은 뷰의 값, 내 주문 목록은 상품 목록으로 */
 	public String getItemSummary() {
-		String first = firstProductName != null ? firstProductName : items.isEmpty() ? null : items.get(0).getProductName();
-		int count = firstProductName != null ? itemCount : items.size();
+		String first = firstProductName;
+		int count = itemCount;
+		if (first == null && !items.isEmpty()) {
+			first = items.get(0).getProductName();
+			count = items.size();
+		}
 		if (first == null) {
 			return "";
 		}

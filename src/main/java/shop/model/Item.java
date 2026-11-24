@@ -33,14 +33,14 @@ public class Item {
 	public String getTypeLabel() { return isTrack() ? "트랙" : "낱개"; }
 
 	/* 주문 가능 = 판매중이고 재고가 담은 일수 이상 */
-	public boolean isOrderable() { return "판매중".equals(status) && stock >= quantity; }
+	public boolean isOrderable() { return isSelling() && stock >= quantity; }
 
 	/* 지금 살 수 있는 상품인가 (조합 · 찜) */
-	public boolean isAvailable() { return "판매중".equals(status) && stock > 0; }
+	public boolean isAvailable() { return isSelling() && stock > 0; }
 
 	/* 장바구니의 상태 칸 */
 	public String getCartState() {
-		if (!"판매중".equals(status)) {
+		if (!isSelling()) {
 			return "판매 중지";
 		}
 		if (stock <= 0) {
@@ -50,6 +50,11 @@ public class Item {
 	}
 
 	public String getStateLabel() {
-		return !"판매중".equals(status) ? "판매 중지" : stock > 0 ? "판매중" : "재고 없음";
+		if (!isSelling()) {
+			return "판매 중지";
+		}
+		return stock > 0 ? "판매중" : "재고 없음";
 	}
+
+	private boolean isSelling() { return "판매중".equals(status); }
 }
