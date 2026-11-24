@@ -43,7 +43,11 @@ public class DB {
 				throw new SQLException("커넥션 풀(jdbc/shop)을 찾지 못했습니다. context.xml 을 확인하세요.", e);
 			}
 		}
-		return TX.get() != null ? TX.get() : pool.getConnection();
+		Connection tx = TX.get();
+		if (tx != null) {
+			return tx;
+		}
+		return pool.getConnection();
 	}
 
 	/* 트랜잭션이 아니면 쓰고 바로 닫는다 */
@@ -86,8 +90,12 @@ public class DB {
 
 	private static PreparedStatement prepare(Connection conn, String sql, Object[] args, boolean keys)
 			throws SQLException {
-		PreparedStatement ps = keys ? conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)
-				: conn.prepareStatement(sql);
+		PreparedStatement ps;
+		if (keys) {
+			ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+		} else {
+			ps = conn.prepareStatement(sql);
+		}
 		int i = 1;
 		for (Object arg : args) {
 			if (arg instanceof Collection) {
@@ -116,8 +124,9 @@ public class DB {
 		Connection conn = connect();
 		try (PreparedStatement ps = prepare(conn, sql, args, true)) {
 			ps.executeUpdate();
-			ResultSet rs = ps.getGeneratedKeys();
-			return rs.next() ? rs.getInt(1) : 0;
+			try (ResultSet rs = ps.getGeneratedKeys()) {
+				return rs.next() ? rs.getInt(1) : 0;
+			}
 		} finally {
 			release(conn);
 		}
@@ -152,10 +161,7 @@ public class DB {
 			while (rs.next()) {
 				Map<String, Object> row = new LinkedHashMap<String, Object>();
 				for (int i = 1; i <= meta.getColumnCount(); i++) {
-					int type = meta.getColumnType(i);
-					Object value = type == Types.TIMESTAMP ? rs.getTimestamp(i)
-							: type == Types.DATE ? rs.getDate(i) : rs.getObject(i);
-					row.put(camel(meta.getColumnLabel(i)), value);
+					row.put(camel(meta.getColumnLabel(i)), value(rs, i, meta.getColumnType(i)));
 				}
 				list.add(row);
 			}
@@ -195,6 +201,17 @@ public class DB {
 		all[args.length + 1] = (Math.max(page, 1) - 1) * limit;
 		List<T> list = list(type, select + " " + from + " " + order + " LIMIT ? OFFSET ?", all);
 		return new Page<T>(list, page, size, total);
+	}
+
+	/* 날짜 · 시각 컬럼은 java.sql 타입으로, 나머지는 드라이버가 주는 그대로 */
+	private static Object value(ResultSet rs, int i, int sqlType) throws SQLException {
+		if (sqlType == Types.TIMESTAMP) {
+			return rs.getTimestamp(i);
+		}
+		if (sqlType == Types.DATE) {
+			return rs.getDate(i);
+		}
+		return rs.getObject(i);
 	}
 
 	/* product_name → productName */

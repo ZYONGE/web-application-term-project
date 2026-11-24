@@ -53,13 +53,13 @@ public class ConfigDAO {
 
 	/* 섭취 일수 빠른 선택 — 상한을 넘는 값은 뺀다 */
 	public static List<Integer> quickDays() throws SQLException {
+		int max = maxDays();
 		List<Integer> list = new ArrayList<Integer>();
 		for (int d : new int[] { 7, 14, 30, 60, 90 }) {
-			if (d <= maxDays()) {
+			if (d <= max) {
 				list.add(d);
 			}
 		}
 		return list;
 	}
-
 }

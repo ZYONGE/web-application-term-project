@@ -30,9 +30,12 @@ public class OrderDAO {
 
 	/* 주문 하나 — 상품 · 배송 기록까지. memberId 가 0 이 아니면 그 회원의 주문만 */
 	public static Order detail(int orderId, int memberId) throws SQLException {
-		Order order = memberId > 0
-				? DB.one(Order.class, SELECT + " " + FROM + " WHERE o.order_id = ? AND o.member_id = ?", orderId, memberId)
-				: DB.one(Order.class, SELECT + " " + FROM + " WHERE o.order_id = ?", orderId);
+		Order order;
+		if (memberId > 0) {
+			order = DB.one(Order.class, SELECT + " " + FROM + " WHERE o.order_id = ? AND o.member_id = ?", orderId, memberId);
+		} else {
+			order = DB.one(Order.class, SELECT + " " + FROM + " WHERE o.order_id = ?", orderId);
+		}
 		if (order != null) {
 			order.setItems(items(orderId));
 			if (order.getDeliveryId() != null) {
@@ -113,16 +116,20 @@ public class OrderDAO {
 
 	/* 주문 취소 / 되살리기 — 바뀐 행 수 */
 	public static int setOrderStatus(int orderId, boolean cancel) throws SQLException {
-		return cancel
-				? DB.update("UPDATE orders SET order_status = '취소', canceled_at = NOW() WHERE order_id = ? AND order_status = '정상'", orderId)
-				: DB.update("UPDATE orders SET order_status = '정상', canceled_at = NULL WHERE order_id = ?", orderId);
+		if (cancel) {
+			return DB.update("UPDATE orders SET order_status = '취소', canceled_at = NOW()"
+					+ " WHERE order_id = ? AND order_status = '정상'", orderId);
+		}
+		return DB.update("UPDATE orders SET order_status = '정상', canceled_at = NULL WHERE order_id = ?", orderId);
 	}
 
 	/* 결제 환불 / 되살리기 */
 	public static int setPayStatus(int orderId, boolean refund) throws SQLException {
-		return refund
-				? DB.update("UPDATE payment SET pay_status = '환불', refunded_at = NOW() WHERE order_id = ? AND pay_status = '완료'", orderId)
-				: DB.update("UPDATE payment SET pay_status = '완료', refunded_at = NULL WHERE order_id = ?", orderId);
+		if (refund) {
+			return DB.update("UPDATE payment SET pay_status = '환불', refunded_at = NOW()"
+					+ " WHERE order_id = ? AND pay_status = '완료'", orderId);
+		}
+		return DB.update("UPDATE payment SET pay_status = '완료', refunded_at = NULL WHERE order_id = ?", orderId);
 	}
 
 	/* 배송의 지금 단계 (배송 정보가 없으면 null) */

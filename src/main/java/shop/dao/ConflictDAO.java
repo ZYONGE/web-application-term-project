@@ -110,10 +110,12 @@ public class ConflictDAO {
 	}
 
 	private static void put(Map<Integer, List<String[]>> found, int id, String name, String via) {
-		if (!found.containsKey(id)) {
-			found.put(id, new ArrayList<String[]>());
+		List<String[]> places = found.get(id);
+		if (places == null) {
+			places = new ArrayList<String[]>();
+			found.put(id, places);
 		}
-		found.get(id).add(new String[] { name, via });
+		places.add(new String[] { name, via });
 	}
 
 	public static boolean exists(int x, int y) throws SQLException {

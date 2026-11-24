@@ -28,8 +28,11 @@ public class CategoryDAO {
 			}
 		}
 		for (Category c : all) {
+			if (c.getParentId() == null) {
+				continue;
+			}
 			for (Category root : roots) {
-				if (c.getParentId() != null && c.getParentId() == root.getCategoryId()) {
+				if (c.getParentId() == root.getCategoryId()) {
 					root.getChildren().add(c);
 				}
 			}

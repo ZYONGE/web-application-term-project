@@ -89,17 +89,30 @@ public class ProductDAO {
 			/* 트랙은 구성품 이름으로도 찾는다 — '오메가' 로 오메가3 가 든 트랙도 나온다 */
 			where.append(" AND (p.name LIKE ? OR p.product_id IN (SELECT ti.track_id FROM track_item ti"
 					+ " JOIN product i ON i.product_id = ti.item_id WHERE i.name LIKE ?))");
-			args.add(like(keyword));
-			args.add(like(keyword));
+			String like = like(keyword);
+			args.add(like);
+			args.add(like);
 		}
-		String order = "priceAsc".equals(sort) ? "ORDER BY p.price ASC, p.product_id DESC"
-				: "priceDesc".equals(sort) ? "ORDER BY p.price DESC, p.product_id DESC"
-				: "rating".equals(sort) ? "ORDER BY avg_rating DESC, review_count DESC, p.product_id DESC"
-				: "name".equals(sort) ? "ORDER BY p.name ASC, p.product_id DESC"
-				: "ORDER BY p.created_at DESC, p.product_id DESC";
-		Page<Product> result = DB.page(Product.class, SELECT, FROM + where, order, page, 10, args);
+		Page<Product> result = DB.page(Product.class, SELECT, FROM + where, shopOrder(sort), page, 10, args);
 		withItems(result.getList());
 		return result;
+	}
+
+	/* 고객 목록 정렬 — 모르는 값(null 포함)이면 최신순 */
+	private static String shopOrder(String sort) {
+		if ("priceAsc".equals(sort)) {
+			return "ORDER BY p.price ASC, p.product_id DESC";
+		}
+		if ("priceDesc".equals(sort)) {
+			return "ORDER BY p.price DESC, p.product_id DESC";
+		}
+		if ("rating".equals(sort)) {
+			return "ORDER BY avg_rating DESC, review_count DESC, p.product_id DESC";
+		}
+		if ("name".equals(sort)) {
+			return "ORDER BY p.name ASC, p.product_id DESC";
+		}
+		return "ORDER BY p.created_at DESC, p.product_id DESC";
 	}
 
 	/* 상품 목록 (관리자) — 숨김 · 품절도 포함 */

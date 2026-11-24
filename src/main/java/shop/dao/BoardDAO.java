@@ -86,9 +86,10 @@ public class BoardDAO {
 
 	/* 삭제 — memberId 가 0 이면 관리자 삭제(누구 것이든) */
 	public static int deleteReview(int reviewId, int memberId) throws SQLException {
-		return memberId > 0
-				? DB.update("DELETE FROM review WHERE review_id = ? AND member_id = ?", reviewId, memberId)
-				: DB.update("DELETE FROM review WHERE review_id = ?", reviewId);
+		if (memberId > 0) {
+			return DB.update("DELETE FROM review WHERE review_id = ? AND member_id = ?", reviewId, memberId);
+		}
+		return DB.update("DELETE FROM review WHERE review_id = ?", reviewId);
 	}
 
 	public static Page<Review> adminReviews(String keyword, int page) throws SQLException {

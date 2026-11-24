@@ -45,9 +45,10 @@ public class AdminDAO {
 				days - 1)) {
 			byDate.put(String.valueOf(row.get("salesDate")), row);
 		}
+		LocalDate today = LocalDate.now();
 		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
 		for (int i = 0; i < days; i++) {
-			Date day = Date.valueOf(LocalDate.now().minusDays(i));
+			Date day = Date.valueOf(today.minusDays(i));
 			Map<String, Object> row = byDate.get(day.toString());
 			if (row == null) {
 				row = new LinkedHashMap<String, Object>();
