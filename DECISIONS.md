@@ -53,3 +53,4 @@
 | 11-24 | 김지용 | `WebContents/css/components/card.css` · `warnbox.css`<br>`WebContents/css/pages/cart.css` · `custom.css` · `main.css` · `order.css` · `product.css` | refactor(css): simplify — 같은 선택자로 여러 번 덮어쓰던 규칙 합치기, 늘 덮여 적용되지 않던 선언 제거 |
 | 11-24 | 김지용 | `WebContents/js/banner.js`<br>`WebContents/js/custom.js` | refactor(js): simplify — custom.js 반복 계산 · URL 문자열 한 번으로, banner.js 중첩 삼항과 중복 ready 검사 정리 |
 | 11-24 | 김지용 | `DECISIONS.md` | 추가: 단순화 커밋 7건(dao · service · llm · model · jsp · css · js)을 결정 이력 표에 기록 |
+| 11-24 | 김지용 | `docs/study/` (12) — `00-overview` · `01-architecture` · `02-db` · `10-기능-*` (6) · `20-simplify` · `30-qna` · `40-script` | 추가: 발표 준비 학습 노트 12개 (개요 · 구조 · DB · 기능별 흐름 · 단순화 · 예상 질문 · 발표 대본) |
